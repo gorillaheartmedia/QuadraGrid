@@ -1,0 +1,4601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#101418" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Goal Tracker" />
+  <title>Goal Setting App</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="app-icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="app-icon.svg" />
+  <style>
+    :root {
+      --bg: #101418;
+      --panel: #182028;
+      --panel-2: #212b36;
+      --text: #eef3f7;
+      --muted: #aab7c4;
+      --line: #2d3946;
+      --accent: #6cc4ff;
+      --green: #2ecc71;
+      --yellow: #f1c40f;
+      --red: #e74c3c;
+      --shadow: 0 12px 30px rgba(0,0,0,0.28);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+      touch-action: manipulation;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(180deg, #0d1116 0%, #111923 100%);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 16px 14px 40px;
+    }
+
+    .hero,
+    .card,
+    .goal-card,
+    .modal-panel {
+      background: rgba(24, 32, 40, 0.98);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 18px;
+      margin-top: 12px;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    h1, h2, h3, p {
+      margin-top: 0;
+    }
+
+    h1 {
+      font-size: 1.55rem;
+      margin-bottom: 8px;
+    }
+
+    h2 {
+      font-size: 1.05rem;
+      margin-bottom: 12px;
+    }
+
+    h3 {
+      font-size: 0.98rem;
+      margin-bottom: 10px;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 0.93rem;
+      line-height: 1.45;
+    }
+
+    .warning-banner {
+      background: rgba(231, 76, 60, 0.16);
+      border: 1px solid rgba(231, 76, 60, 0.55);
+      color: #ffd7d2;
+      padding: 12px 14px;
+      border-radius: 14px;
+      margin-bottom: 14px;
+      font-size: 0.92rem;
+      line-height: 1.4;
+    }
+
+    .success-banner {
+      background: rgba(46, 204, 113, 0.14);
+      border: 1px solid rgba(46, 204, 113, 0.45);
+      color: #d9ffea;
+      padding: 12px 14px;
+      border-radius: 14px;
+      margin-bottom: 14px;
+      font-size: 0.92rem;
+      line-height: 1.4;
+    }
+
+    .weekly-summary {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+      padding: 14px;
+      border: 1px solid rgba(108, 196, 255, 0.45);
+      border-radius: 14px;
+      background: rgba(108, 196, 255, 0.1);
+    }
+
+    .weekly-summary-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .weekly-summary-title {
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .weekly-summary-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .weekly-summary-goal {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(17, 24, 32, 0.7);
+      padding: 10px;
+    }
+
+    .weekly-summary-stats {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .weekly-summary-stats strong {
+      display: block;
+      color: var(--text);
+      font-size: 0.95rem;
+      margin-bottom: 2px;
+    }
+
+    .card {
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .launch-screen {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 60vh;
+      padding: 32px 16px;
+      text-align: center;
+    }
+
+    .launch-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+      max-width: 280px;
+      margin: 0 auto;
+    }
+
+    .launch-button {
+      width: 86px;
+      height: 86px;
+      font-size: 2.6rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+
+    .launch-label {
+      font-size: 1.05rem;
+      font-weight: bold;
+      color: var(--text);
+    }
+
+    .install-app-wrap {
+      margin-top: 12px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .install-app-btn {
+      min-width: 180px;
+    }
+
+    .module-hidden {
+      display: none;
+    }
+
+    .wizard-progress {
+      color: var(--muted);
+      font-size: 0.95rem;
+      margin-bottom: 14px;
+    }
+
+    .step-hidden {
+      display: none;
+    }
+
+    .duration-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar button {
+      flex: 1 1 auto;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      border-radius: 14px;
+      min-height: 46px;
+      padding: 12px 14px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+      transition: transform 0.12s ease, opacity 0.12s ease, background 0.12s ease;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button:active { transform: translateY(0); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #07121b;
+      font-weight: bold;
+    }
+
+    .btn-secondary {
+      background: #2a3642;
+      color: var(--text);
+      border: 1px solid #394959;
+    }
+
+    .btn-danger {
+      background: #472225;
+      color: #ffd7d2;
+      border: 1px solid #7b353b;
+    }
+
+    .btn-success {
+      background: #1f4430;
+      color: #d8ffe8;
+      border: 1px solid #2f7a50;
+    }
+
+    .btn-warning {
+      background: #4e4318;
+      color: #fff0b2;
+      border: 1px solid #8d7421;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .field-head label {
+      margin: 0;
+    }
+
+    .inline-field-btn {
+      min-height: 34px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      font-size: 0.78rem;
+      line-height: 1;
+    }
+
+    .generator-note {
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.35;
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    label {
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+
+    input,
+    select {
+      width: 100%;
+      background: #111820;
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      min-height: 48px;
+    }
+
+    input[type="color"] {
+      height: 46px;
+      padding: 6px;
+      cursor: pointer;
+    }
+
+    .icon-picker {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .icon-choice {
+      min-height: 58px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: #111820;
+      color: var(--text);
+      display: grid;
+      place-items: center;
+      gap: 4px;
+      padding: 8px 4px;
+    }
+
+    .icon-choice.active {
+      border-color: var(--accent);
+      background: rgba(108, 196, 255, 0.16);
+      box-shadow: 0 0 0 2px rgba(108, 196, 255, 0.16);
+    }
+
+    .icon-choice-symbol {
+      font-size: 1.2rem;
+      line-height: 1;
+    }
+
+    .icon-choice-symbol svg,
+    .icon-choice-symbol img {
+      width: 20px;
+      height: 20px;
+      display: block;
+      object-fit: contain;
+    }
+
+    .icon-choice-symbol img {
+      filter: brightness(0) invert(1);
+    }
+
+    .icon-choice-symbol svg {
+      fill: currentColor;
+      stroke: currentColor;
+    }
+
+    .action-icon svg,
+    .inline-ui-icon svg {
+      width: 18px;
+      height: 18px;
+      display: block;
+      fill: currentColor;
+      stroke: currentColor;
+    }
+
+    .inline-ui-icon {
+      display: inline-grid;
+      place-items: center;
+      width: 18px;
+      height: 18px;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+
+    .icon-choice-label {
+      font-size: 0.68rem;
+      color: var(--muted);
+      line-height: 1.1;
+      text-align: center;
+    }
+
+    .row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .celebration {
+      display: grid;
+      gap: 10px;
+      margin: 0 0 12px;
+      padding: 12px;
+      border-radius: 14px;
+      border: 1px solid var(--goal-color);
+      background: var(--goal-color-soft);
+      color: var(--text);
+      animation: celebrationDrop 420ms cubic-bezier(.2, 1.25, .35, 1);
+    }
+
+    .celebration-title {
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .confetti-row {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .confetti-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--goal-color);
+      animation: confettiBounce 680ms ease-out both;
+    }
+
+    .confetti-dot:nth-child(2) { animation-delay: 70ms; opacity: 0.85; }
+    .confetti-dot:nth-child(3) { animation-delay: 140ms; opacity: 0.7; }
+    .confetti-dot:nth-child(4) { animation-delay: 210ms; opacity: 0.85; }
+    .confetti-dot:nth-child(5) { animation-delay: 280ms; opacity: 0.7; }
+
+    @keyframes completedPop {
+      0% { transform: scale(1); box-shadow: var(--shadow); }
+      45% { transform: scale(1.035); box-shadow: 0 0 0 4px var(--goal-color-soft), 0 18px 42px var(--goal-color-glow); }
+      100% { transform: scale(1); box-shadow: var(--shadow); }
+    }
+
+    @keyframes goalShine {
+      0% { transform: translateX(-120%); }
+      100% { transform: translateX(120%); }
+    }
+
+    @keyframes celebrationDrop {
+      0% { opacity: 0; transform: translateY(-10px) scale(0.96); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes confettiBounce {
+      0% { transform: translateY(0) scale(0.6); opacity: 0; }
+      45% { transform: translateY(-12px) scale(1.35); opacity: 1; }
+      100% { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    .achievement-modal-panel {
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top, rgba(108, 196, 255, 0.18), transparent 42%),
+        linear-gradient(180deg, rgba(20, 28, 38, 0.98), rgba(14, 20, 28, 0.98));
+    }
+
+    .achievement-stage {
+      position: relative;
+      min-height: 280px;
+      padding: 22px 16px 16px;
+      display: grid;
+      align-content: center;
+      justify-items: center;
+      text-align: center;
+      gap: 10px;
+    }
+
+    .achievement-effects {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .achievement-firework,
+    .achievement-star {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .achievement-firework {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.92);
+      box-shadow:
+        0 -56px 0 0 #ffd166,
+        40px -40px 0 0 #ff7b72,
+        56px 0 0 0 #6cc4ff,
+        40px 40px 0 0 #2ecc71,
+        0 56px 0 0 #f1c40f,
+        -40px 40px 0 0 #c77dff,
+        -56px 0 0 0 #59e7c0,
+        -40px -40px 0 0 #ffa94d;
+      opacity: 0;
+      animation: achievementBurst 1.6s ease-out infinite;
+    }
+
+    .achievement-firework.firework-2 {
+      left: 24%;
+      top: 30%;
+      transform: translate(-50%, -50%) scale(0.78);
+      animation-delay: 0.24s;
+    }
+
+    .achievement-firework.firework-3 {
+      left: 76%;
+      top: 34%;
+      transform: translate(-50%, -50%) scale(0.86);
+      animation-delay: 0.48s;
+    }
+
+    .achievement-star {
+      color: #ffffff;
+      font-size: 1.2rem;
+      line-height: 1;
+      opacity: 0;
+      animation: achievementStarFloat 2.2s ease-out infinite;
+    }
+
+    .achievement-star.star-1 { left: 14%; top: 22%; animation-delay: 0.1s; }
+    .achievement-star.star-2 { left: 83%; top: 20%; animation-delay: 0.5s; }
+    .achievement-star.star-3 { left: 19%; top: 72%; animation-delay: 0.9s; }
+    .achievement-star.star-4 { left: 82%; top: 76%; animation-delay: 1.3s; }
+    .achievement-star.star-5 { left: 50%; top: 14%; animation-delay: 1.7s; }
+
+    .achievement-kicker {
+      color: #ffd166;
+      font-size: 0.74rem;
+      font-weight: bold;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .achievement-title {
+      font-size: 1.6rem;
+      font-weight: bold;
+      color: #ffffff;
+    }
+
+    .achievement-value {
+      font-size: 2.2rem;
+      font-weight: bold;
+      color: #ffffff;
+      text-shadow: 0 0 22px rgba(108, 196, 255, 0.34);
+    }
+
+    .achievement-message {
+      max-width: 260px;
+      color: #d5dfeb;
+      line-height: 1.45;
+      font-size: 0.95rem;
+    }
+
+    .completion-modal-panel {
+      max-width: 420px;
+      overflow: hidden;
+      background: #0f1620;
+      padding: 0;
+    }
+
+    .completion-stage {
+      position: relative;
+      min-height: 360px;
+      background: #000000;
+    }
+
+    .completion-gif {
+      width: 100%;
+      height: 100%;
+      min-height: 360px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .completion-return {
+      position: absolute;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      min-width: 170px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.35);
+    }
+
+    .completion-return.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .completion-return:hover,
+    .completion-return:active {
+      transform: translateX(-50%);
+    }
+
+    @keyframes achievementBurst {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.15);
+      }
+      18% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.18);
+      }
+    }
+
+    @keyframes achievementStarFloat {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, 4px) scale(0.5);
+      }
+      22% {
+        opacity: 1;
+        transform: translate(-50%, -8px) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -30px) scale(0.7);
+      }
+    }
+
+    .goal-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .goal-info-btn {
+      min-height: 44px;
+      padding: 10px 12px;
+      font-size: 0.9rem;
+    }
+
+    .goal-name {
+      font-size: 1rem;
+      font-weight: bold;
+      line-height: 1.3;
+    }
+
+    .traffic {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      box-shadow: 0 0 0 4px rgba(255,255,255,0.05);
+      flex-shrink: 0;
+    }
+
+    .traffic.green { background: var(--green); }
+    .traffic.yellow { background: var(--yellow); }
+    .traffic.red { background: var(--red); }
+
+    .traffic-outside {
+      width: 22px;
+      height: 22px;
+      box-shadow: 0 0 0 5px rgba(255,255,255,0.06), 0 10px 22px rgba(0,0,0,0.26);
+    }
+
+    .chips {
+      display: none;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .chips.show {
+      display: flex;
+    }
+
+    .chip {
+      background: #202a34;
+      border: 1px solid #34414f;
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 0.84rem;
+      color: var(--muted);
+    }
+
+    .main-square-stage {
+      min-height: 68vh;
+      display: grid;
+      place-items: center;
+      padding: 16px 0 4px;
+      background: transparent;
+      border: 0;
+      box-shadow: none;
+      margin-bottom: 0;
+    }
+
+    .star-rating {
+      width: 100%;
+      display: grid;
+      place-items: center;
+      gap: 16px;
+    }
+
+    .progress-square {
+      width: min(72vw, 270px);
+      aspect-ratio: 1;
+      position: relative;
+      margin: 0 auto;
+      transform: rotate(45deg);
+      filter: drop-shadow(0 24px 34px rgba(0, 0, 0, 0.34));
+    }
+
+    .progress-segment {
+      position: absolute;
+      inset: 0;
+      border: 0;
+      padding: 0;
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      clip-path: polygon(0 0, 50% 0, 50% 50%, 0 50%);
+      opacity: 0.98;
+      transition: transform 0.18s ease, filter 0.18s ease, opacity 0.18s ease;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+      overflow: visible;
+    }
+
+    .progress-segment:hover,
+    .progress-segment:focus-visible {
+      transform: scale(1.04);
+      filter: brightness(1.08);
+      outline: none;
+      z-index: 2;
+    }
+
+    .progress-segment.is-complete {
+      animation: segmentPop 520ms cubic-bezier(.2, 1.35, .35, 1);
+    }
+
+    .progress-segment.is-finished {
+      opacity: 0.62;
+      filter: saturate(0.55) brightness(0.76);
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,0.1),
+        inset 0 0 0 999px rgba(7, 11, 16, 0.2);
+    }
+
+    .progress-segment.is-finished .segment-symbol {
+      opacity: 0.88;
+    }
+
+    .progress-segment.is-priority-focus {
+      z-index: 1;
+      animation: priorityPulse 1.9s ease-in-out infinite;
+      box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,0.18),
+        0 0 18px rgba(255,255,255,0.14),
+        0 0 32px rgba(108,196,255,0.18);
+    }
+
+    .progress-segment.is-priority-focus .segment-symbol {
+      filter: drop-shadow(0 0 12px rgba(255,255,255,0.28));
+    }
+
+    .progress-segment.is-empty {
+      background: rgba(255,255,255,0.06) !important;
+      border: 1px dashed rgba(255,255,255,0.14);
+      opacity: 0.88;
+    }
+
+    .progress-segment.is-empty:hover,
+    .progress-segment.is-empty:focus-visible {
+      opacity: 1;
+      filter: brightness(1.18);
+    }
+
+    .progress-segment.fragment-1 { clip-path: polygon(0 0, 50% 0, 50% 50%, 0 50%); }
+    .progress-segment.fragment-2 { clip-path: polygon(50% 0, 100% 0, 100% 50%, 50% 50%); }
+    .progress-segment.fragment-3 { clip-path: polygon(50% 50%, 100% 50%, 100% 100%, 50% 100%); }
+    .progress-segment.fragment-4 { clip-path: polygon(0 50%, 50% 50%, 50% 100%, 0 100%); }
+
+    .segment-core {
+      position: absolute;
+      inset: 0;
+      transform: rotate(-45deg);
+      pointer-events: none;
+    }
+
+    .segment-center-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(100%, -158%);
+      display: grid;
+      place-items: center;
+    }
+
+    .progress-segment.fragment-1 .segment-center-icon {
+      top: 12%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .progress-segment.fragment-2 .segment-center-icon {
+      top: 50%;
+      left: calc(64% + 60px);
+      transform: translate(-50%, -50%);
+    }
+
+    .progress-segment.fragment-3 .segment-center-icon {
+      top: calc(72% + 25px);
+      left: calc(72% - 60px);
+      transform: translate(-50%, -50%);
+    }
+
+    .progress-segment.fragment-4 .segment-center-icon {
+      top: 50%;
+      left: calc(36% - 60px);
+      transform: translate(-50%, -50%);
+    }
+
+    .progress-segment.fragment-2 .segment-symbol.goal-icon,
+    .progress-segment.fragment-4 .segment-symbol.goal-icon {
+      width: 52px;
+      height: 52px;
+    }
+
+    .progress-segment.fragment-2 .segment-symbol.goal-icon svg,
+    .progress-segment.fragment-4 .segment-symbol.goal-icon svg,
+    .progress-segment.fragment-2 .segment-symbol.goal-icon img,
+    .progress-segment.fragment-4 .segment-symbol.goal-icon img {
+      width: 52px;
+      height: 52px;
+    }
+
+    .segment-meta {
+      display: none;
+    }
+
+    .segment-symbol {
+      font-size: 1.6rem;
+      line-height: 1;
+      color: rgba(255,255,255,0.95);
+      text-shadow: 0 3px 14px rgba(0,0,0,0.28);
+    }
+
+    .segment-symbol.goal-icon {
+      width: 60px;
+      height: 60px;
+      display: grid;
+      place-items: center;
+      color: #ffffff;
+      text-shadow: none;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25));
+    }
+
+    .segment-symbol.goal-icon svg,
+    .segment-symbol.goal-icon img {
+      width: 60px;
+      height: 60px;
+      display: block;
+      object-fit: contain;
+    }
+
+    .segment-symbol.goal-icon img {
+      filter: brightness(0) invert(1);
+    }
+
+    .segment-symbol.goal-icon svg {
+      fill: currentColor;
+      stroke: currentColor;
+    }
+
+    @keyframes priorityPulse {
+      0%, 100% {
+        transform: scale(1);
+        filter: brightness(1);
+      }
+      50% {
+        transform: scale(1.045);
+        filter: brightness(1.14);
+      }
+    }
+
+    .segment-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      box-shadow: 0 0 0 4px rgba(10,16,22,0.22);
+    }
+
+    .segment-name {
+      max-width: 78px;
+      font-size: 0.72rem;
+      line-height: 1.15;
+      text-align: center;
+      color: rgba(255,255,255,0.9);
+      text-shadow: 0 3px 12px rgba(0,0,0,0.28);
+      overflow-wrap: anywhere;
+    }
+
+    @keyframes segmentPop {
+      0% { transform: scale(1); filter: brightness(1); }
+      45% { transform: scale(1.08); filter: brightness(1.35); }
+      100% { transform: scale(1); filter: brightness(1); }
+    }
+
+    .completion-text {
+      font-size: 1rem;
+      font-weight: bold;
+      color: var(--green);
+      display: none;
+      margin-top: 0;
+      text-align: center;
+    }
+
+    .completion-text.show {
+      display: block;
+    }
+
+    .weekly-summary-slot {
+      width: 100%;
+      margin-top: 12px;
+    }
+
+    .weekly-summary-slot:empty {
+      display: none;
+    }
+
+    .progress {
+      width: 100%;
+      height: 10px;
+      background: #111820;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #6cc4ff 0%, #59e7c0 100%);
+      width: 0%;
+      transition: width 0.2s ease;
+    }
+
+    .goal-actions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .intervention-prompt {
+      display: grid;
+      gap: 10px;
+      border: 1px solid rgba(231, 76, 60, 0.55);
+      border-radius: 14px;
+      background: rgba(231, 76, 60, 0.14);
+      color: #ffd7d2;
+      padding: 12px;
+      margin-bottom: 12px;
+      font-size: 0.86rem;
+      line-height: 1.35;
+    }
+
+    .intervention-prompt button {
+      justify-self: start;
+    }
+
+    .goal-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.84rem;
+      color: var(--muted);
+      flex-wrap: wrap;
+    }
+
+    .tiny-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .goal-hub-actions {
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-top: 14px;
+      margin-bottom: 0;
+      width: 100%;
+    }
+
+    .goal-hub-btn {
+      min-height: 64px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      text-align: center;
+      padding: 14px 16px;
+    }
+
+    .goal-hub-btn .action-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 1rem;
+      font-weight: bold;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.12);
+      line-height: 1;
+    }
+
+    .goal-hub-btn .action-label {
+      font-size: 0.95rem;
+      font-weight: bold;
+      line-height: 1.15;
+    }
+
+    #goalHubTrackBtn .action-icon {
+      padding-left: 3px;
+    }
+
+    .goal-hub-btn:disabled .action-icon,
+    .goal-hub-btn:disabled .action-label {
+      opacity: 0.6;
+    }
+
+    .btn-success .action-icon {
+      background: rgba(255,255,255,0.16);
+      border-color: rgba(255,255,255,0.24);
+    }
+
+    .btn-warning .action-icon {
+      background: rgba(255,255,255,0.12);
+      border-color: rgba(255,255,255,0.2);
+    }
+
+    .btn-secondary .action-icon,
+    .btn-primary .action-icon {
+      background: rgba(255,255,255,0.12);
+      border-color: rgba(255,255,255,0.18);
+    }
+
+    #goalHubTimerBtn .action-icon {
+      color: #ffffff;
+    }
+
+    .goal-hub-btn.is-toggle-complete {
+      background: #1f4430;
+      color: #d8ffe8;
+      border: 1px solid #2f7a50;
+    }
+
+    .goal-hub-btn.is-toggle-undo {
+      background: #472225;
+      color: #ffd7d2;
+      border: 1px solid #7b353b;
+    }
+
+    .goal-hub-btn.is-toggle-undo .action-icon {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.16);
+    }
+
+    .tiny-actions button {
+      min-height: 44px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 0.83rem;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 24px 16px;
+      color: var(--muted);
+      border: 1px dashed #395061;
+      border-radius: 16px;
+      background: rgba(17, 24, 32, 0.6);
+    }
+
+    .footer-note {
+      font-size: 0.84rem;
+      color: var(--muted);
+      line-height: 1.5;
+      padding: 8px 2px 0;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 8, 12, 0.74);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 50;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-panel {
+      width: 100%;
+      max-width: 460px;
+      padding: 16px;
+      max-height: 90vh;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .modal-close {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--line);
+      min-height: 44px;
+      padding: 10px 12px;
+    }
+
+    .legend {
+      display: grid;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+
+    .schedule-wrap {
+      overflow-x: auto;
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(17, 24, 32, 0.82);
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-x: contain;
+    }
+
+    .schedule-grid {
+      display: grid;
+      grid-template-columns: 150px repeat(var(--day-count), 48px);
+      width: max-content;
+    }
+
+    .schedule-corner,
+    .schedule-date,
+    .schedule-goal,
+    .schedule-cell {
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .schedule-corner,
+    .schedule-date {
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      background: #182028;
+    }
+
+    .schedule-corner,
+    .schedule-goal {
+      position: sticky;
+      left: 0;
+      z-index: 4;
+      background: #182028;
+    }
+
+    .schedule-corner {
+      z-index: 5;
+      min-height: 58px;
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    .schedule-date {
+      min-height: 58px;
+      display: grid;
+      place-items: center;
+      padding: 6px 4px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.68rem;
+      line-height: 1.2;
+    }
+
+    .schedule-date strong {
+      display: block;
+      color: var(--text);
+      font-size: 0.78rem;
+    }
+
+    .schedule-goal {
+      min-height: 58px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 10px;
+      border: 0;
+      color: var(--text);
+      cursor: pointer;
+      text-align: left;
+      width: 100%;
+    }
+
+    .schedule-goal:hover {
+      background: #202a34;
+    }
+
+    .schedule-goal-name {
+      min-width: 0;
+      font-weight: bold;
+      font-size: 0.84rem;
+      line-height: 1.25;
+    }
+
+    .schedule-goal-meta {
+      color: var(--muted);
+      font-size: 0.7rem;
+      margin-top: 3px;
+    }
+
+    .schedule-cell {
+      min-height: 58px;
+      display: grid;
+      place-items: center;
+      padding: 7px;
+      background: #111820;
+    }
+
+    .schedule-box {
+      width: 34px;
+      height: 34px;
+      border: 1px solid #3a4754;
+      border-radius: 8px;
+      background: #18212b;
+      color: transparent;
+      display: grid;
+      place-items: center;
+      transition: background 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease, opacity 0.16s ease;
+    }
+
+    .schedule-box.complete {
+      border-color: var(--goal-color);
+      background: var(--goal-color);
+      color: #ffffff;
+      font-size: 0.7rem;
+      font-weight: bold;
+      box-shadow: 0 0 0 3px var(--goal-color-soft), 0 8px 18px rgba(0,0,0,0.24);
+    }
+
+    .schedule-box.missed {
+      border-color: #3a4754;
+      background: #18212b;
+    }
+
+    .schedule-box.redeemed {
+      border-color: #3a4754;
+      background: #18212b;
+      box-shadow: none;
+    }
+
+    .schedule-box.pending {
+      border-color: #3a4754;
+      background: #18212b;
+    }
+
+    .schedule-box.not-required {
+      background: transparent;
+      border-color: rgba(58, 71, 84, 0.32);
+      opacity: 0.38;
+    }
+
+    .tracking-legend {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 0.8rem;
+      margin-top: 12px;
+    }
+
+    .tracking-calendar-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .tracking-section-title {
+      margin: 18px 0 8px;
+      color: var(--text);
+      font-size: 0.9rem;
+      font-weight: bold;
+    }
+
+    .archive-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .archive-card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(17, 24, 32, 0.82);
+      padding: 10px;
+    }
+
+    .archive-card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .archive-card-name {
+      color: var(--text);
+      font-weight: bold;
+      font-size: 0.86rem;
+      line-height: 1.25;
+    }
+
+    .archive-card-meta {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 0.72rem;
+      line-height: 1.35;
+    }
+
+    .archive-card-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .goal-dashboard-meta-list {
+      display: grid;
+      gap: 8px;
+      margin: 14px 0;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(17, 24, 32, 0.72);
+    }
+
+    .tracking-goal-card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(17, 24, 32, 0.82);
+      padding: 10px;
+    }
+
+    .tracking-goal-head {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 0 6px;
+      border: 0;
+      background: transparent;
+      color: var(--text);
+      text-align: left;
+    }
+
+    .tracking-goal-head:hover {
+      transform: none;
+      opacity: 0.96;
+    }
+
+    .tracking-goal-head:active {
+      transform: none;
+    }
+
+    .tracking-goal-info {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .tracking-goal-name {
+      font-weight: bold;
+      font-size: 0.86rem;
+      line-height: 1.25;
+    }
+
+    .tracking-goal-meta {
+      display: none;
+    }
+
+    .tracking-month-label {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .tracking-date-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 4px;
+    }
+
+    .tracking-date-tile {
+      display: grid;
+      justify-items: center;
+      gap: 3px;
+      padding: 3px 1px;
+    }
+
+    .tracking-date-tile.is-outside {
+      opacity: 0.34;
+    }
+
+    .tracking-day-number {
+      color: var(--muted);
+      font-size: 0.6rem;
+      line-height: 1;
+    }
+
+    .tracking-date-tile.is-complete .tracking-day-number {
+      color: var(--text);
+    }
+
+    .tracking-date-tile.is-outside .tracking-day-number {
+      color: transparent;
+    }
+
+    .tracking-date-label {
+      display: none;
+    }
+
+    .tracking-goal-card .traffic {
+      display: none;
+    }
+
+    .tracking-goal-card .schedule-box {
+      width: 28px;
+      height: 18px;
+      border-radius: 4px;
+      box-shadow: none;
+    }
+
+    .tracking-goal-card .schedule-box.complete {
+      box-shadow: 0 0 0 2px var(--goal-color-soft);
+    }
+
+    .tracking-goal-card .schedule-box.not-required {
+      opacity: 0;
+    }
+
+    .goal-dashboard-summary {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin: 14px 0;
+    }
+
+    .redeem-options {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .redeem-option {
+      text-align: left;
+      background: #202a34;
+      color: var(--text);
+      border: 1px solid var(--line);
+      min-height: 64px;
+    }
+
+    .redeem-option strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .intervention-form {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 170px;
+      resize: vertical;
+      background: #111820;
+      color: var(--text);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      font: inherit;
+      line-height: 1.4;
+    }
+
+    .goal-dashboard-stat {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(17, 24, 32, 0.72);
+      padding: 12px;
+      text-align: center;
+    }
+
+    .goal-dashboard-stat strong {
+      display: block;
+      color: var(--text);
+      font-size: 1.2rem;
+      margin-bottom: 4px;
+    }
+
+    .goal-dashboard-stat span {
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .dashboard-calendar-wrap {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(17, 24, 32, 0.82);
+      padding: 12px;
+    }
+
+    .dashboard-calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .dashboard-date-tile {
+      display: grid;
+      justify-items: center;
+      gap: 4px;
+      padding: 4px 1px;
+    }
+
+    .dashboard-date-tile.is-outside {
+      opacity: 0.34;
+    }
+
+    .dashboard-day-number {
+      color: var(--muted);
+      font-size: 0.62rem;
+      line-height: 1;
+    }
+
+    .dashboard-date-tile.is-complete .dashboard-day-number {
+      color: var(--text);
+    }
+
+    .dashboard-date-tile.is-outside .dashboard-day-number {
+      color: transparent;
+    }
+
+    .dashboard-calendar-wrap .schedule-box {
+      width: 28px;
+      height: 18px;
+      border-radius: 4px;
+      box-shadow: none;
+    }
+
+    .dashboard-calendar-wrap .schedule-box.complete {
+      box-shadow: 0 0 0 2px var(--goal-color-soft);
+    }
+
+    .dashboard-calendar-wrap .schedule-box.not-required {
+      opacity: 0;
+    }
+
+    .bar-label {
+      text-align: center;
+      line-height: 1.15;
+    }
+
+    .timer-display {
+      text-align: center;
+      font-size: 2.5rem;
+      font-weight: bold;
+      letter-spacing: 0.03em;
+      margin: 16px 0 8px;
+      color: var(--text);
+    }
+
+    .timer-goal-name {
+      text-align: center;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .timer-progress {
+      height: 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #111820;
+      overflow: hidden;
+      margin: 14px 0;
+    }
+
+    .timer-progress-bar {
+      height: 100%;
+      width: 0%;
+      background: var(--goal-color, var(--accent));
+      transition: width 0.2s ease;
+    }
+
+    .timer-actions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    @media (max-width: 560px) {
+      .app {
+        padding: 12px 10px 32px;
+      }
+
+      .modal {
+        align-items: flex-end;
+        padding: 10px;
+      }
+
+      .modal-panel {
+        max-height: 92vh;
+        border-radius: 16px;
+      }
+
+      .goal-actions {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .goal-dashboard-summary {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .weekly-summary-stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .schedule-grid {
+        grid-template-columns: 132px repeat(var(--day-count), 46px);
+      }
+
+      .schedule-corner,
+      .schedule-goal {
+        padding: 8px;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .row-2 {
+        grid-template-columns: 1fr;
+      }
+
+      .weekly-summary-head {
+        display: grid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div id="appContent">
+      <section class="hero">
+        <h1>Goal Tracker</h1>
+        <p class="muted">A mobile-friendly goal setting app for 1–5 goals, with dates, reminders, daily tracking, and a traffic-light status system. Tiny accountability machine. Slightly less judgmental than a gym mirror.</p>
+      </section>
+
+      <div id="inactivityBanner"></div>
+      <div id="saveBanner"></div>
+
+    <section class="card main-square-stage">
+      <div id="progressSquareContainer" class="star-rating">
+        <!-- Main navigation square will be inserted here -->
+      </div>
+      <div id="weeklySummaryContainer" class="weekly-summary-slot"></div>
+      <div class="install-app-wrap">
+        <button class="btn-secondary module-hidden install-app-btn" id="installAppBtn" type="button">Install App</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal" id="goalCreationModal">
+    <div class="modal-panel">
+      <div class="modal-head">
+        <h3>Create Goal</h3>
+        <button class="modal-close" id="closeGoalCreationBtn">Close</button>
+      </div>
+      <div class="wizard-progress" id="wizardProgress">Step 1 of 2</div>
+      <div class="goal-wizard">
+        <div class="wizard-step" id="goalWizardStep1">
+          <div class="field-grid">
+            <div class="field">
+              <div class="field-head">
+                <label for="goalName">Goal Name</label>
+                <button class="btn-secondary inline-field-btn" type="button" id="randomGoalBtn">Random Goal</button>
+              </div>
+              <input id="goalName" type="text" maxlength="80" placeholder="Example: Walk 20 minutes" />
+              <div class="generator-note" id="randomGoalNote">Generate a starter idea for writing, workouts, cleaning, and similar light routines.</div>
+            </div>
+            <div class="field">
+              <label for="goalFrequency">Goal Frequency</label>
+              <select id="goalFrequency">
+                <option value="Daily">Daily</option>
+                <option value="Weekdays">Weekdays</option>
+                <option value="3x Weekly">3x Weekly</option>
+                <option value="Custom Daily Check">Custom Daily Check</option>
+                <option value="One Shot">One Shot</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="goalColor">Goal Color</label>
+              <input id="goalColor" type="color" value="#6cc4ff" />
+            </div>
+            <div class="field">
+              <label for="goalIcon">Optional Goal Icon</label>
+              <select id="goalIcon" class="visually-hidden" aria-label="Optional Goal Icon">
+                <option value="">None</option>
+              </select>
+              <div class="icon-picker" id="goalIconPicker" aria-label="Goal icon choices"></div>
+            </div>
+            <div class="field module-hidden" id="priorityFieldWrap">
+              <label for="priorityLevel">Priority</label>
+              <select id="priorityLevel">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5" selected>5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="wizard-step step-hidden" id="goalWizardStep2">
+          <div class="field-grid">
+            <div class="row-2">
+              <div class="field">
+                <label for="startDate">Beginning Date</label>
+                <input id="startDate" type="date" />
+              </div>
+              <div class="field">
+                <label for="endDate">End Date</label>
+                <input id="endDate" type="date" />
+              </div>
+            </div>
+
+            <div class="row-2">
+              <div class="field">
+                <label for="performTime">Best Time of Day</label>
+                <select id="performTime">
+                  <option value="Morning">Morning</option>
+                  <option value="Afternoon">Afternoon</option>
+                  <option value="Evening">Evening</option>
+                  <option value="Night">Night</option>
+                  <option value="Flexible">Flexible</option>
+                </select>
+              </div>
+              <div class="duration-grid">
+                <div class="field">
+                  <label for="estimatedHours">Estimated Duration (hours)</label>
+                  <input id="estimatedHours" type="number" min="0" max="24" placeholder="0" />
+                </div>
+                <div class="field">
+                  <label for="estimatedMinutes">Estimated Duration (minutes)</label>
+                  <input id="estimatedMinutes" type="number" min="0" max="59" placeholder="00" />
+                </div>
+              </div>
+            </div>
+
+            <div class="row-2">
+              <div class="field">
+                <label for="reminderTime">Reminder Time</label>
+                <input id="reminderTime" type="time" />
+              </div>
+              <div class="field">
+                <label for="emailReminder">Email Reminder Address</label>
+                <input id="emailReminder" type="email" placeholder="name@example.com" />
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="goalLink">Optional Goal Resource Link</label>
+              <input id="goalLink" type="url" placeholder="https://example.com/resource" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <button class="btn-secondary module-hidden" id="wizardBackBtn">Back</button>
+        <button class="btn-primary" id="wizardNextBtn">Next</button>
+        <button class="btn-primary module-hidden" id="wizardSubmitBtn">Create Goal</button>
+      </div>
+      <div class="footer-note">
+        You can create up to 4 active goals. Reminder times are stored in the app. Browser-based apps cannot send true push notifications or automated emails by themselves without a backend/service worker.
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="goalDetailsModal">
+    <div class="modal-panel">
+      <div class="modal-head">
+        <h3 id="detailsGoalName">Goal Details</h3>
+        <button class="modal-close" id="closeDetailsBtn">Close</button>
+      </div>
+      <div id="detailsContent" class="legend">
+        <!-- Details will be injected here -->
+      </div>
+      <div class="toolbar" style="margin-top: 14px; gap: 8px;">
+        <button class="btn-secondary" id="detailsPriorityModeBtn">Priority Mode: Off</button>
+        <button class="btn-secondary" id="detailsEditBtn">Edit Goal</button>
+        <button class="btn-danger" id="detailsDeleteBtn">Delete Goal</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="trackingModal">
+    <div class="modal-panel">
+      <div class="modal-head">
+        <h3>Goal Tracking</h3>
+        <button class="modal-close" id="closeTrackingBtn">Close</button>
+      </div>
+      <p class="muted">Goals run down the left. Dates move across the top from the earliest start to the latest end. Tap a goal name for its dashboard.</p>
+      <div id="trackingContent"></div>
+    </div>
+  </div>
+
+  <div class="modal" id="goalHubModal">
+    <div class="modal-panel">
+      <div class="modal-head">
+        <h3 id="goalHubTitle">Goal</h3>
+        <button class="modal-close" id="closeGoalHubBtn">Close</button>
+      </div>
+      <div id="goalHubContent" class="legend"></div>
+      <div class="goal-actions goal-hub-actions">
+        <button class="goal-hub-btn is-toggle-complete" id="goalHubCompleteBtn">
+          <span class="action-icon" id="goalHubCompleteIcon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z" /></svg></span>
+          <span class="action-label" id="goalHubCompleteLabel">Did It</span>
+        </button>
+        <button class="btn-primary goal-hub-btn" id="goalHubTimerBtn">
+          <span class="action-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 1H9v2h6V1zm-3 5a8 8 0 1 0 8 8 8 8 0 0 0-8-8zm1 9h-5v-2h3V9h2v6z" /></svg></span>
+          <span class="action-label">Timer</span>
+        </button>
+        <button class="btn-secondary goal-hub-btn" id="goalHubTrackBtn">
+          <span class="action-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9h3v10H5zM10.5 5h3v14h-3zM16 12h3v7h-3z" /></svg></span>
+          <span class="action-label">Dashboard</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="goalDashboardModal">
+    <div class="modal-panel">
+      <div class="modal-head">
+        <h3 id="goalDashboardTitle">Goal Dashboard</h3>
+        <button class="modal-close" id="closeGoalDashboardBtn">Close</button>
+      </div>
+      <div id="goalDashboardContent"></div>
+    </div>
+  </div>
+
+  <div class="modal" id="timerModal">
+    <div class="modal-panel">
+      <div class="modal-head">
+        <h3>Goal Timer</h3>
+        <button class="modal-close" id="closeTimerBtn">Close</button>
+      </div>
+      <div class="timer-goal-name" id="timerGoalName"></div>
+      <div class="timer-display" id="timerDisplay">00:00</div>
+      <div class="timer-progress">
+        <div class="timer-progress-bar" id="timerProgressBar"></div>
+      </div>
+      <div class="timer-actions">
+        <button class="btn-primary" id="timerStartPauseBtn">Start</button>
+        <button class="btn-secondary" id="timerResetBtn">Reset</button>
+        <button class="btn-success" id="timerCompleteBtn">Complete</button>
+      </div>
+      <p class="footer-note">This uses the duration saved with the goal. It runs while the page stays active; phone lock screens and background tabs may pause browser timers.</p>
+    </div>
+  </div>
+
+  <div class="modal" id="redeemModal">
+    <div class="modal-panel">
+      <div class="modal-head">
+        <h3>Recovery Prompt</h3>
+        <button class="modal-close" id="closeRedeemBtn">Close</button>
+      </div>
+      <p class="muted" id="redeemGoalName"></p>
+      <div class="redeem-options">
+        <div class="redeem-option" id="redeemAssignedChallenge"></div>
+      </div>
+      <div class="toolbar" style="margin-top:14px;">
+        <button class="btn-primary" id="redeemActionBtn">Start Recovery</button>
+      </div>
+      <p class="footer-note">This prompt is assigned automatically after a missed required day. It does not count as completing the original goal, but it does push you back into motion.</p>
+    </div>
+  </div>
+
+  <div class="modal" id="interventionModal">
+    <div class="modal-panel">
+      <div class="modal-head">
+        <h3>Goal Intervention</h3>
+        <button class="modal-close" id="closeInterventionBtn">Close</button>
+      </div>
+      <p class="muted" id="interventionGoalName"></p>
+      <div class="intervention-form">
+        <div class="field">
+          <label for="interventionEmail">Send To</label>
+          <input id="interventionEmail" type="email" placeholder="name@example.com" />
+        </div>
+        <div class="field">
+          <label for="interventionMessage">Message</label>
+          <textarea id="interventionMessage"></textarea>
+        </div>
+        <div class="toolbar">
+          <button class="btn-primary" id="sendInterventionBtn">Open Email Draft</button>
+          <button class="btn-secondary" id="logInterventionBtn">Log Only</button>
+        </div>
+      </div>
+      <p class="footer-note">This opens your email app with a draft. The browser cannot send email automatically without a backend mail service.</p>
+    </div>
+  </div>
+
+  <div class="modal" id="legendModal">
+    <div class="modal-panel">
+      <div class="modal-head">
+        <h3>Traffic Light Model</h3>
+        <button class="modal-close" id="closeLegendBtn">Close</button>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><span class="traffic green"></span> <span><strong style="color:#fff;">Green:</strong> goal is on course. Usually completed recently and not falling behind.</span></div>
+        <div class="legend-item"><span class="traffic yellow"></span> <span><strong style="color:#fff;">Yellow:</strong> goal is slipping. Missed a day or showing inconsistent completion.</span></div>
+        <div class="legend-item"><span class="traffic red"></span> <span><strong style="color:#fff;">Red:</strong> goal has failed to complete over a consistent period of days or is seriously behind.</span></div>
+      </div>
+      <p class="footer-note" style="margin-top:14px;">
+        In this build, green = 70%+ completion rate and no long miss streak, yellow = 40%–69% or a short miss streak, red = below 40% or 3+ missed days in a row.
+      </p>
+    </div>
+  </div>
+
+  <div class="modal" id="achievementModal">
+    <div class="modal-panel achievement-modal-panel">
+      <div class="modal-head">
+        <h3>Achievement Unlocked</h3>
+        <button class="modal-close" id="closeAchievementBtn">Close</button>
+      </div>
+      <div id="achievementContent" class="achievement-stage"></div>
+      <div class="toolbar">
+        <button class="btn-primary" id="achievementNextBtn">Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="completionModal">
+    <div class="modal-panel completion-modal-panel">
+      <div class="completion-stage">
+        <img class="completion-gif" id="completionGif" src="congrats.gif" alt="Congratulations celebration" />
+        <button class="btn-primary completion-return" id="completionReturnBtn">Return To Goals</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'goal_tracker_mobile_v1';
+    const LAST_ACCESS_KEY = 'goal_tracker_last_access_v1';
+    const INSPIRATION_LINK_KEY = 'goal_tracker_inspiration_link_v1';
+    const WEEKLY_SUMMARY_KEY = 'goal_tracker_weekly_summary_seen_v1';
+    const ACHIEVEMENT_STREAK_MILESTONES = [5];
+    const ACHIEVEMENT_COMPLETION_MILESTONES = [10, 25, 50, 75, 100, 150, 200, 250, 300, 500, 750, 1000];
+    const ACHIEVEMENT_HOUR_MILESTONES = [5, 10, 15, 20, 25, 50, 75, 100];
+    const SOUND_FILES = {
+      select: 'creatorshome-select-002-337219.mp3',
+      error: 'universfield-error-08-206492.mp3',
+      complete: 'goal complete.mp3',
+      achievement: 'universfield-level-up-04-243762.mp3'
+    };
+    const RANDOM_GOAL_TEMPLATES = [
+      { name: 'Write one short journal page', frequency: 'Daily', bestTime: 'Morning', hours: 0, minutes: 15, icon: 'pencil', color: '#6cc4ff' },
+      { name: 'Do a 20 minute light workout', frequency: 'Daily', bestTime: 'Morning', hours: 0, minutes: 20, icon: 'dumbbell', color: '#2ecc71' },
+      { name: 'Clean one room reset', frequency: 'Weekdays', bestTime: 'Afternoon', hours: 0, minutes: 25, icon: 'cloud', color: '#f1c40f' },
+      { name: 'Write three new ideas', frequency: 'Daily', bestTime: 'Evening', hours: 0, minutes: 10, icon: 'idea', color: '#59e7c0' },
+      { name: 'Stretch and mobility routine', frequency: 'Daily', bestTime: 'Morning', hours: 0, minutes: 15, icon: 'meditation', color: '#e74c3c' },
+      { name: 'Declutter one small area', frequency: 'Weekdays', bestTime: 'Afternoon', hours: 0, minutes: 15, icon: 'book', color: '#6cc4ff' },
+      { name: 'Free write for 20 minutes', frequency: '3x Weekly', bestTime: 'Night', hours: 0, minutes: 20, icon: 'pencil', color: '#2ecc71' },
+      { name: 'Take a brisk walk outside', frequency: 'Daily', bestTime: 'Evening', hours: 0, minutes: 30, icon: 'heart', color: '#f1c40f' },
+      { name: 'Clean dishes and kitchen counters', frequency: 'Daily', bestTime: 'Evening', hours: 0, minutes: 20, icon: 'food', color: '#59e7c0' },
+      { name: 'Read and outline one chapter', frequency: 'Weekdays', bestTime: 'Night', hours: 0, minutes: 25, icon: 'book', color: '#e74c3c' }
+    ];
+    const DEFAULT_GOAL_COLORS = ['#6cc4ff', '#2ecc71', '#f1c40f', '#e74c3c', '#59e7c0'];
+    const GOAL_ICON_MAP = {
+      heart: { label: 'Heart', file: 'heart-svgrepo-com.svg' },
+      dumbbell: { label: 'Dumbbell', file: 'dumbbell-8-svgrepo-com.svg' },
+      food: { label: 'Food', file: 'food-restaurant-svgrepo-com.svg' },
+      fire: { label: 'Fire', file: 'fire.svg' },
+      hazard: { label: 'Biohazard', file: 'biohazard-symbol-svgrepo-com.svg' },
+      warning: { label: 'Warning', file: 'exclamation-warning-sign-svgrepo-com.svg' },
+      poison: { label: 'Skull', file: 'poison-svgrepo-com.svg' },
+      idea: { label: 'Idea', file: 'idea-svgrepo-com.svg' },
+      pencil: { label: 'Write', file: 'write-svgrepo-com.svg' },
+      book: { label: 'Book', file: 'book-svgrepo-com.svg' },
+      cloud: { label: 'Cloud', file: 'cloud-svgrepo-com.svg' },
+      computer: { label: 'Computer', file: 'computer-svgrepo-com.svg' },
+      controller: { label: 'Controller', file: 'controller-svgrepo-com.svg' },
+      basketball: { label: 'Basketball', file: 'basketball-svgrepo-com.svg' },
+      headphones: { label: 'Headphones', file: 'headphones-square-svgrepo-com.svg' },
+      meditation: { label: 'Meditation', file: 'meditation-meditate-mindful-mindfulness-svgrepo-com.svg' },
+      music: { label: 'Music', file: 'music-note-svgrepo-com.svg' },
+      money: { label: 'Money', file: 'money-sign-money-dollar-sign-svgrepo-com.svg' },
+      phone: { label: 'Phone', file: 'phone-calling-svgrepo-com.svg' },
+      photo: { label: 'Photo', file: 'photo-svgrepo-com.svg' },
+      star: { label: 'Star', file: 'star-svgrepo-com.svg' },
+      test: { label: 'Test', file: 'test-svgrepo-com.svg' }
+    };
+
+    const state = {
+      goals: [],
+      archivedGoals: [],
+      recoveryPromptHistory: {},
+      achievements: {
+        unlocked: {}
+      },
+      settings: {
+        priorityMode: false
+      }
+    };
+
+    let celebrationGoalId = null;
+    let celebrationTimer = null;
+    let completionReturnTimer = null;
+    let lastRefreshTickKey = '';
+    let achievementQueue = [];
+    let activeAchievement = null;
+    const soundPlayers = {};
+    let deferredInstallPrompt = null;
+
+    const goalName = document.getElementById('goalName');
+    const randomGoalBtn = document.getElementById('randomGoalBtn');
+    const randomGoalNote = document.getElementById('randomGoalNote');
+    const startDate = document.getElementById('startDate');
+    const endDate = document.getElementById('endDate');
+    const performTime = document.getElementById('performTime');
+    const reminderTime = document.getElementById('reminderTime');
+    const emailReminder = document.getElementById('emailReminder');
+    const goalLink = document.getElementById('goalLink');
+    const estimatedHours = document.getElementById('estimatedHours');
+    const estimatedMinutes = document.getElementById('estimatedMinutes');
+    const goalFrequency = document.getElementById('goalFrequency');
+    const goalColor = document.getElementById('goalColor');
+    const goalIcon = document.getElementById('goalIcon');
+    const priorityFieldWrap = document.getElementById('priorityFieldWrap');
+    const priorityLevel = document.getElementById('priorityLevel');
+    const goalIconPicker = document.getElementById('goalIconPicker');
+    const goalIconChoices = [];
+    const addGoalBtn = document.getElementById('wizardSubmitBtn');
+    const wizardNextBtn = document.getElementById('wizardNextBtn');
+    const wizardBackBtn = document.getElementById('wizardBackBtn');
+    const wizardProgress = document.getElementById('wizardProgress');
+    const goalWizardStep1 = document.getElementById('goalWizardStep1');
+    const goalWizardStep2 = document.getElementById('goalWizardStep2');
+    const appContent = document.getElementById('appContent');
+    const goalCreationModal = document.getElementById('goalCreationModal');
+    const closeGoalCreationBtn = document.getElementById('closeGoalCreationBtn');
+    const progressSquareContainer = document.getElementById('progressSquareContainer');
+    const inactivityBanner = document.getElementById('inactivityBanner');
+    const saveBanner = document.getElementById('saveBanner');
+    const weeklySummaryContainer = document.getElementById('weeklySummaryContainer');
+    const installAppBtn = document.getElementById('installAppBtn');
+    const legendModal = document.getElementById('legendModal');
+    const openLegendBtn = document.getElementById('openLegendBtn');
+    const closeLegendBtn = document.getElementById('closeLegendBtn');
+    const seedExampleBtn = document.getElementById('seedExampleBtn');
+    const goalDetailsModal = document.getElementById('goalDetailsModal');
+    const closeDetailsBtn = document.getElementById('closeDetailsBtn');
+    const detailsGoalName = document.getElementById('detailsGoalName');
+    const detailsContent = document.getElementById('detailsContent');
+    const detailsPriorityModeBtn = document.getElementById('detailsPriorityModeBtn');
+    const detailsEditBtn = document.getElementById('detailsEditBtn');
+    const detailsDeleteBtn = document.getElementById('detailsDeleteBtn');
+    const goalHubModal = document.getElementById('goalHubModal');
+    const closeGoalHubBtn = document.getElementById('closeGoalHubBtn');
+    const goalHubTitle = document.getElementById('goalHubTitle');
+    const goalHubContent = document.getElementById('goalHubContent');
+    const goalHubCompleteBtn = document.getElementById('goalHubCompleteBtn');
+    const goalHubCompleteIcon = document.getElementById('goalHubCompleteIcon');
+    const goalHubCompleteLabel = document.getElementById('goalHubCompleteLabel');
+    const goalHubTimerBtn = document.getElementById('goalHubTimerBtn');
+    const goalHubTrackBtn = document.getElementById('goalHubTrackBtn');
+    const trackingModal = document.getElementById('trackingModal');
+    const closeTrackingBtn = document.getElementById('closeTrackingBtn');
+    const trackingContent = document.getElementById('trackingContent');
+    const goalDashboardModal = document.getElementById('goalDashboardModal');
+    const closeGoalDashboardBtn = document.getElementById('closeGoalDashboardBtn');
+    const goalDashboardTitle = document.getElementById('goalDashboardTitle');
+    const goalDashboardContent = document.getElementById('goalDashboardContent');
+    const timerModal = document.getElementById('timerModal');
+    const closeTimerBtn = document.getElementById('closeTimerBtn');
+    const timerGoalName = document.getElementById('timerGoalName');
+    const timerDisplay = document.getElementById('timerDisplay');
+    const timerProgressBar = document.getElementById('timerProgressBar');
+    const timerStartPauseBtn = document.getElementById('timerStartPauseBtn');
+    const timerResetBtn = document.getElementById('timerResetBtn');
+    const timerCompleteBtn = document.getElementById('timerCompleteBtn');
+    const redeemModal = document.getElementById('redeemModal');
+    const closeRedeemBtn = document.getElementById('closeRedeemBtn');
+    const redeemGoalName = document.getElementById('redeemGoalName');
+    const redeemAssignedChallenge = document.getElementById('redeemAssignedChallenge');
+    const redeemActionBtn = document.getElementById('redeemActionBtn');
+    const interventionModal = document.getElementById('interventionModal');
+    const closeInterventionBtn = document.getElementById('closeInterventionBtn');
+    const interventionGoalName = document.getElementById('interventionGoalName');
+    const interventionEmail = document.getElementById('interventionEmail');
+    const interventionMessage = document.getElementById('interventionMessage');
+    const sendInterventionBtn = document.getElementById('sendInterventionBtn');
+    const logInterventionBtn = document.getElementById('logInterventionBtn');
+    const achievementModal = document.getElementById('achievementModal');
+    const achievementContent = document.getElementById('achievementContent');
+    const closeAchievementBtn = document.getElementById('closeAchievementBtn');
+    const achievementNextBtn = document.getElementById('achievementNextBtn');
+    const completionModal = document.getElementById('completionModal');
+    const completionGif = document.getElementById('completionGif');
+    const completionReturnBtn = document.getElementById('completionReturnBtn');
+    let currentDetailGoalId = null;
+    let currentRedeemGoalId = null;
+    let currentRecoveryAction = 'timer';
+    let currentInterventionGoalId = null;
+    let currentHubGoalId = null;
+    const timerState = {
+      goalId: null,
+      totalSeconds: 0,
+      remainingSeconds: 0,
+      running: false,
+      intervalId: null
+    };
+
+    function todayString() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '—';
+      const parts = dateStr.split('-');
+      if (parts.length !== 3) return dateStr;
+      return `${parts[1]}/${parts[2]}/${parts[0]}`;
+    }
+
+    function daysBetween(start, end) {
+      const a = new Date(start + 'T00:00:00');
+      const b = new Date(end + 'T00:00:00');
+      return Math.floor((b - a) / (1000 * 60 * 60 * 24));
+    }
+
+    function isValidHexColor(color) {
+      return /^#[0-9a-f]{6}$/i.test(color);
+    }
+
+    function getGoalColor(goal, index = 0) {
+      if (goal && isValidHexColor(goal.color)) return goal.color;
+      return DEFAULT_GOAL_COLORS[index % DEFAULT_GOAL_COLORS.length];
+    }
+
+    function getGoalIconData(iconKey) {
+      return GOAL_ICON_MAP[String(iconKey || '').trim()] || null;
+    }
+
+    function getGoalIconMarkup(iconKey) {
+      const iconData = getGoalIconData(iconKey);
+      return iconData ? `<img src="${iconData.file}" alt="" aria-hidden="true" />` : '';
+    }
+
+    function renderGoalIconPicker() {
+      if (!goalIcon || !goalIconPicker) return;
+
+      const iconEntries = Object.entries(GOAL_ICON_MAP);
+      goalIcon.innerHTML = [
+        '<option value="">None</option>',
+        ...iconEntries.map(([key, icon]) => `<option value="${key}">${icon.label}</option>`)
+      ].join('');
+
+      goalIconPicker.innerHTML = [
+        `<button class="icon-choice" type="button" data-icon-value="">
+          <span class="icon-choice-symbol">+</span>
+          <span class="icon-choice-label">None</span>
+        </button>`,
+        ...iconEntries.map(([key, icon]) => `
+          <button class="icon-choice" type="button" data-icon-value="${key}">
+            <span class="icon-choice-symbol"><img src="${icon.file}" alt="" aria-hidden="true" /></span>
+            <span class="icon-choice-label">${icon.label}</span>
+          </button>
+        `)
+      ].join('');
+    }
+
+    function getUiIconMarkup(iconKey) {
+      const icons = {
+        check: "<svg viewBox='0 0 24 24' aria-hidden='true'><path d='M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z' /></svg>",
+        undo: "<svg viewBox='0 0 24 24' aria-hidden='true'><path d='M12 5V2L7 6l5 4V7c3.3 0 6 2.7 6 6a6 6 0 0 1-6 6 6 6 0 0 1-5.7-4H4.2A8 8 0 0 0 12 21a8 8 0 0 0 0-16z' /></svg>",
+        link: "<svg viewBox='0 0 24 24' aria-hidden='true'><path d='M3.9 12a5 5 0 0 1 5-5H13v2H8.9a3 3 0 1 0 0 6H13v2H8.9a5 5 0 0 1-5-5zm7.1 1h2v-2h-2v2zm4.1-6H11v2h4.1a3 3 0 1 1 0 6H11v2h4.1a5 5 0 1 0 0-10z' /></svg>",
+        details: "<svg viewBox='0 0 24 24' aria-hidden='true'><path d='M11 10h2v7h-2zm0-3h2v2h-2zm1-5a10 10 0 1 0 10 10A10 10 0 0 0 12 2z' /></svg>",
+        chart: "<svg viewBox='0 0 24 24' aria-hidden='true'><path d='M5 9h3v10H5zM10.5 5h3v14h-3zM16 12h3v7h-3z' /></svg>",
+        timer: "<svg viewBox='0 0 24 24' aria-hidden='true'><path d='M15 1H9v2h6V1zm-3 5a8 8 0 1 0 8 8 8 8 0 0 0-8-8zm1 9h-5v-2h3V9h2v6z' /></svg>"
+      };
+      return icons[iconKey] || '';
+    }
+
+    function syncGoalIconPicker() {
+      const selected = goalIcon ? goalIcon.value : '';
+      const choices = goalIconPicker ? goalIconPicker.querySelectorAll('[data-icon-value]') : [];
+      choices.forEach(choice => {
+        choice.classList.toggle('active', choice.dataset.iconValue === selected);
+      });
+    }
+
+    function ensureSettings() {
+      if (!state.settings || typeof state.settings !== 'object') {
+        state.settings = { priorityMode: false };
+      }
+      if (typeof state.settings.priorityMode !== 'boolean') {
+        state.settings.priorityMode = false;
+      }
+      return state.settings;
+    }
+
+    function syncPriorityModeUi() {
+      const settings = ensureSettings();
+      if (priorityFieldWrap) {
+        priorityFieldWrap.classList.toggle('module-hidden', !settings.priorityMode);
+      }
+      if (detailsPriorityModeBtn) {
+        detailsPriorityModeBtn.textContent = `Priority Mode: ${settings.priorityMode ? 'On' : 'Off'}`;
+      }
+    }
+
+    function normalizeGoalPriorities() {
+      const used = new Set();
+      state.goals.forEach(goal => {
+        let priority = Number(goal.priority);
+        if (!Number.isFinite(priority)) priority = 5;
+        priority = Math.max(1, Math.min(10, priority));
+        while (used.has(priority) && priority < 10) {
+          priority++;
+        }
+        if (used.has(priority)) {
+          for (let candidate = 1; candidate <= 10; candidate++) {
+            if (!used.has(candidate)) {
+              priority = candidate;
+              break;
+            }
+          }
+        }
+        goal.priority = priority;
+        used.add(priority);
+      });
+    }
+
+    function isPriorityTaken(priorityValue) {
+      const priority = Number(priorityValue);
+      if (!Number.isFinite(priority)) return false;
+      return state.goals.some(goal => Number(goal.priority) === priority);
+    }
+
+    function hexToRgba(hex, alpha) {
+      const color = isValidHexColor(hex) ? hex : DEFAULT_GOAL_COLORS[0];
+      const r = parseInt(color.slice(1, 3), 16);
+      const g = parseInt(color.slice(3, 5), 16);
+      const b = parseInt(color.slice(5, 7), 16);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+
+    function startCelebration(goalId) {
+      playSound('complete');
+      celebrationGoalId = goalId;
+      clearTimeout(celebrationTimer);
+      celebrationTimer = setTimeout(() => {
+        celebrationGoalId = null;
+        render();
+      }, 2200);
+    }
+
+    function returnFromCompletionCelebration() {
+      clearTimeout(completionReturnTimer);
+      if (completionReturnBtn) {
+        completionReturnBtn.classList.remove('show');
+      }
+      if (completionModal) {
+        completionModal.classList.remove('show');
+      }
+      stopCompletionGif();
+      renderProgressSquare();
+    }
+
+    function showGoalConclusionScreen(goals) {
+      if (!goals || !goals.length) return;
+      clearTimeout(completionReturnTimer);
+      if (completionReturnBtn) {
+        completionReturnBtn.classList.remove('show');
+      }
+
+      closeGoalHub();
+      closeGoalDashboard();
+      closeGoalDetails();
+      closeTrackingModal();
+      closeTimer();
+      startCompletionGif();
+      if (completionModal) {
+        completionModal.classList.add('show');
+      }
+      playSound('achievement');
+      completionReturnTimer = setTimeout(() => {
+        if (completionReturnBtn) {
+          completionReturnBtn.classList.add('show');
+        }
+      }, 3000);
+    }
+
+    function isGoalAwaitingConclusion(goal) {
+      if (!goal || !goal.endDate) return false;
+      return todayString() > goal.endDate && !goal.concludedAt;
+    }
+
+    function confirmGoalConclusion(id) {
+      const goal = state.goals.find(item => item.id === id);
+      if (!goal || !isGoalAwaitingConclusion(goal)) return;
+
+      const sameDayGoals = state.goals.filter(item => item.endDate === goal.endDate && isGoalAwaitingConclusion(item));
+      const now = new Date().toISOString();
+      const sameDayGoalIds = new Set(sameDayGoals.map(item => item.id));
+      sameDayGoals.forEach(item => {
+        item.concludedAt = now;
+        item.updatedAt = now;
+      });
+      const archivedItems = sameDayGoals.map(item => ({
+        ...item,
+        archivedAt: now
+      }));
+      state.goals = state.goals.filter(item => !sameDayGoalIds.has(item.id));
+      ensureArchivedGoals().unshift(...archivedItems);
+      saveState(false);
+      render();
+      showGoalConclusionScreen(archivedItems);
+    }
+
+    function maybeShowGoalConclusionScreen() {
+      const today = todayString();
+      const concludedGoals = state.goals.filter(goal => {
+        if (!goal || !goal.endDate) return false;
+        if (today <= goal.endDate) return false;
+        return !goal.concludedAt;
+      });
+      return concludedGoals;
+    }
+
+    function formatTimer(seconds) {
+      const safeSeconds = Math.max(0, Math.ceil(seconds));
+      const hours = Math.floor(safeSeconds / 3600);
+      const minutes = Math.floor((safeSeconds % 3600) / 60);
+      const secs = safeSeconds % 60;
+      if (hours > 0) {
+        return `${hours}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      }
+      return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+
+    function formatDuration(seconds) {
+      const safeSeconds = Math.max(0, Math.round(seconds || 0));
+      const hours = Math.floor(safeSeconds / 3600);
+      const minutes = Math.floor((safeSeconds % 3600) / 60);
+      const secs = safeSeconds % 60;
+      if (hours > 0) return `${hours}h ${minutes}m`;
+      if (minutes > 0) return `${minutes}m ${secs}s`;
+      return `${secs}s`;
+    }
+
+    function ensureTimeHistory(goal) {
+      if (!goal.timeHistory) goal.timeHistory = {};
+      return goal.timeHistory;
+    }
+
+    function ensureRedemptionHistory(goal) {
+      if (!goal.redemptionHistory) goal.redemptionHistory = {};
+      return goal.redemptionHistory;
+    }
+
+    function ensureInterventionHistory(goal) {
+      if (!goal.interventionHistory) goal.interventionHistory = {};
+      return goal.interventionHistory;
+    }
+
+    function ensureRecoveryPromptHistory() {
+      if (!state.recoveryPromptHistory || typeof state.recoveryPromptHistory !== 'object') {
+        state.recoveryPromptHistory = {};
+      }
+      return state.recoveryPromptHistory;
+    }
+
+    function ensureAchievementState() {
+      if (!state.achievements || typeof state.achievements !== 'object') {
+        state.achievements = { unlocked: {} };
+      }
+      if (!state.achievements.unlocked || typeof state.achievements.unlocked !== 'object') {
+        state.achievements.unlocked = {};
+      }
+      return state.achievements;
+    }
+
+    function ensureArchivedGoals() {
+      if (!Array.isArray(state.archivedGoals)) {
+        state.archivedGoals = [];
+      }
+      return state.archivedGoals;
+    }
+
+    function getGoalById(id, source = 'active') {
+      const collection = source === 'archived' ? ensureArchivedGoals() : state.goals;
+      return collection.find(goal => goal.id === id) || null;
+    }
+
+    function getGoalCompletionCount(goal) {
+      const history = ensureHistory(goal);
+      return Object.values(history).filter(value => value === 'complete').length;
+    }
+
+    function getGoalCurrentStreak(goal) {
+      const history = ensureHistory(goal);
+      const dates = getTrackingDates(goal).filter(date => isRequiredDay(goal, date) && date <= todayString());
+      let streak = 0;
+      for (let i = dates.length - 1; i >= 0; i--) {
+        if (history[dates[i]] === 'complete') {
+          streak += 1;
+          continue;
+        }
+        break;
+      }
+      return streak;
+    }
+
+    function getTotalCompletionCount() {
+      return state.goals.reduce((total, goal) => total + getGoalCompletionCount(goal), 0);
+    }
+
+    function getTotalHoursLogged() {
+      const totalSeconds = state.goals.reduce((total, goal) => total + getGoalTotalSeconds(goal), 0);
+      return totalSeconds / 3600;
+    }
+
+    function buildAchievementEffectsMarkup() {
+      return `
+        <div class="achievement-effects">
+          <div class="achievement-firework firework-1"></div>
+          <div class="achievement-firework firework-2"></div>
+          <div class="achievement-firework firework-3"></div>
+          <div class="achievement-star star-1">★</div>
+          <div class="achievement-star star-2">★</div>
+          <div class="achievement-star star-3">★</div>
+          <div class="achievement-star star-4">★</div>
+          <div class="achievement-star star-5">★</div>
+        </div>
+      `;
+    }
+
+    function showNextAchievement() {
+      if (activeAchievement || !achievementQueue.length || !achievementModal || !achievementContent) return;
+      activeAchievement = achievementQueue.shift();
+      playSound('achievement');
+      achievementContent.innerHTML = `
+        ${buildAchievementEffectsMarkup()}
+        <div class="achievement-kicker">${escapeHtml(activeAchievement.kicker)}</div>
+        <div class="achievement-title">${escapeHtml(activeAchievement.title)}</div>
+        <div class="achievement-value">${escapeHtml(activeAchievement.value)}</div>
+        <div class="achievement-message">${escapeHtml(activeAchievement.message)}</div>
+      `;
+      achievementModal.classList.add('show');
+    }
+
+    function queueAchievements(items) {
+      if (!items || !items.length) return;
+      achievementQueue.push(...items);
+      showNextAchievement();
+    }
+
+    function closeAchievementModal() {
+      playSound('select');
+      if (achievementModal) achievementModal.classList.remove('show');
+      activeAchievement = null;
+      showNextAchievement();
+    }
+
+    function checkForAchievements(goal) {
+      if (!goal) return [];
+
+      const achievements = ensureAchievementState();
+      const unlocked = achievements.unlocked;
+      const found = [];
+
+      ACHIEVEMENT_STREAK_MILESTONES.forEach(milestone => {
+        const key = `streak:${goal.id}:${milestone}`;
+        if (unlocked[key]) return;
+        const streak = getGoalCurrentStreak(goal);
+        if (streak >= milestone) {
+          unlocked[key] = new Date().toISOString();
+          found.push({
+            kicker: 'Streak Achievement',
+            title: goal.name,
+            value: `${milestone} Days`,
+            message: `You completed ${goal.name} for ${milestone} consecutive required days.`
+          });
+        }
+      });
+
+      ACHIEVEMENT_COMPLETION_MILESTONES.forEach(milestone => {
+        const key = `completions:${milestone}`;
+        if (unlocked[key]) return;
+        const completions = getTotalCompletionCount();
+        if (completions >= milestone) {
+          unlocked[key] = new Date().toISOString();
+          found.push({
+            kicker: 'Completion Achievement',
+            title: 'Goals Completed',
+            value: `${milestone}`,
+            message: `You have logged ${milestone} completed goal days across the app.`
+          });
+        }
+      });
+
+      ACHIEVEMENT_HOUR_MILESTONES.forEach(milestone => {
+        const key = `hours:${milestone}`;
+        if (unlocked[key]) return;
+        const hours = getTotalHoursLogged();
+        if (hours >= milestone) {
+          unlocked[key] = new Date().toISOString();
+          found.push({
+            kicker: 'Time Achievement',
+            title: 'Hours Clocked',
+            value: `${milestone} Hours`,
+            message: `You have logged at least ${milestone} total hours across your goals.`
+          });
+        }
+      });
+
+      return found;
+    }
+
+    function normalizeUrl(url) {
+      const value = String(url || '').trim();
+      if (!value) return '';
+      if (/^https?:\/\//i.test(value)) return value;
+      return `https://${value}`;
+    }
+
+    function playSound(kind) {
+      const file = SOUND_FILES[kind];
+      if (!file) return;
+
+      try {
+        if (!soundPlayers[kind]) {
+          soundPlayers[kind] = new Audio(file);
+          soundPlayers[kind].preload = 'auto';
+        }
+        const player = soundPlayers[kind];
+        player.pause();
+        player.currentTime = 0;
+        player.play().catch(() => {});
+      } catch (err) {
+        console.warn('Sound playback skipped', err);
+      }
+    }
+
+    function startCompletionGif() {
+      if (!completionGif) return;
+      completionGif.src = '';
+      completionGif.src = 'congrats.gif';
+    }
+
+    function stopCompletionGif() {
+      if (!completionGif) return;
+      completionGif.src = '';
+    }
+
+    function registerServiceWorker() {
+      if (!('serviceWorker' in navigator)) return;
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(err => {
+          console.warn('Service worker registration failed', err);
+        });
+      });
+    }
+
+    function setupInstallPrompt() {
+      window.addEventListener('beforeinstallprompt', (event) => {
+        event.preventDefault();
+        deferredInstallPrompt = event;
+        if (installAppBtn) {
+          installAppBtn.classList.remove('module-hidden');
+        }
+      });
+
+      window.addEventListener('appinstalled', () => {
+        deferredInstallPrompt = null;
+        if (installAppBtn) {
+          installAppBtn.classList.add('module-hidden');
+        }
+      });
+    }
+
+    function pickRandomGoalTemplate() {
+      const index = Math.floor(Math.random() * RANDOM_GOAL_TEMPLATES.length);
+      return RANDOM_GOAL_TEMPLATES[index];
+    }
+
+    function applyRandomGoalTemplate() {
+      playSound('select');
+      const template = pickRandomGoalTemplate();
+      if (!template) return;
+
+      goalName.value = template.name;
+      goalFrequency.value = template.frequency;
+      performTime.value = template.bestTime;
+      estimatedHours.value = String(template.hours);
+      estimatedMinutes.value = String(template.minutes);
+      goalColor.value = isValidHexColor(template.color) ? template.color : DEFAULT_GOAL_COLORS[0];
+      goalIcon.value = getGoalIconData(template.icon) ? template.icon : '';
+      syncGoalIconPicker();
+
+      if (!startDate.value) {
+        startDate.value = todayString();
+      }
+      if (!endDate.value) {
+        endDate.value = futureDate(template.frequency === 'One Shot' ? 7 : 14);
+      }
+      if (!randomGoalNote) return;
+      randomGoalNote.textContent = `Starter loaded: ${template.name}`;
+    }
+
+    function previousDate(dateStr) {
+      const date = new Date(dateStr + 'T00:00:00');
+      date.setDate(date.getDate() - 1);
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const d = String(date.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function getRefreshTickKey() {
+      const now = new Date();
+      return `${todayString()}-${now.getHours()}-${now.getMinutes()}`;
+    }
+
+    function getGoalTotalSeconds(goal) {
+      const timeHistory = ensureTimeHistory(goal);
+      return Object.values(timeHistory).reduce((total, seconds) => total + Number(seconds || 0), 0);
+    }
+
+    function ensureCompletionMoments(goal) {
+      if (!goal.completionMoments || typeof goal.completionMoments !== 'object') {
+        goal.completionMoments = {};
+      }
+      return goal.completionMoments;
+    }
+
+    function addGoalTime(id, seconds) {
+      const goal = state.goals.find(g => g.id === id);
+      const secondsToAdd = Math.max(0, Math.round(seconds || 0));
+      if (!goal || secondsToAdd <= 0) return;
+      const timeHistory = ensureTimeHistory(goal);
+      const today = todayString();
+      timeHistory[today] = Number(timeHistory[today] || 0) + secondsToAdd;
+      goal.updatedAt = new Date().toISOString();
+    }
+
+    function completeGoal(id, secondsToLog = null) {
+      const goal = state.goals.find(g => g.id === id);
+      if (!goal) return;
+      const history = ensureHistory(goal);
+      const alreadyCompleteToday = history[todayString()] === 'complete';
+      const durationToLog = secondsToLog === null ? getGoalDurationSeconds(goal) : secondsToLog;
+      if (secondsToLog !== null || !alreadyCompleteToday) {
+        addGoalTime(id, durationToLog);
+      }
+      markGoal(id, 'complete');
+    }
+
+    function getGoalDurationSeconds(goal) {
+      const hours = Number(goal.estimatedHours || 0);
+      const minutes = Number(goal.estimatedMinutes || 0);
+      return Math.max(60, (hours * 60 * 60) + (minutes * 60));
+    }
+
+    function stopTimerInterval() {
+      clearInterval(timerState.intervalId);
+      timerState.intervalId = null;
+      timerState.running = false;
+    }
+
+    function renderTimer() {
+      timerDisplay.textContent = formatTimer(timerState.remainingSeconds);
+      timerStartPauseBtn.textContent = timerState.running ? 'Pause' : 'Start';
+      const elapsed = timerState.totalSeconds ? timerState.totalSeconds - timerState.remainingSeconds : 0;
+      const percent = timerState.totalSeconds ? Math.min(100, Math.max(0, (elapsed / timerState.totalSeconds) * 100)) : 0;
+      timerProgressBar.style.width = `${percent}%`;
+    }
+
+    function finishTimer() {
+      const goalId = timerState.goalId;
+      const elapsedSeconds = timerState.totalSeconds;
+      stopTimerInterval();
+      timerState.remainingSeconds = 0;
+      renderTimer();
+      if (goalId) {
+        completeGoal(goalId, elapsedSeconds);
+      }
+    }
+
+    function tickTimer() {
+      timerState.remainingSeconds -= 1;
+      if (timerState.remainingSeconds <= 0) {
+        finishTimer();
+        return;
+      }
+      renderTimer();
+    }
+
+    function startTimer() {
+      if (!timerState.goalId || timerState.running) return;
+      timerState.running = true;
+      timerState.intervalId = setInterval(tickTimer, 1000);
+      renderTimer();
+    }
+
+    function pauseTimer() {
+      stopTimerInterval();
+      renderTimer();
+    }
+
+    function toggleTimer() {
+      if (timerState.running) {
+        pauseTimer();
+      } else {
+        startTimer();
+      }
+    }
+
+    function resetTimer() {
+      stopTimerInterval();
+      timerState.remainingSeconds = timerState.totalSeconds;
+      renderTimer();
+    }
+
+    function openGoalTimer(id) {
+      const goal = state.goals.find(g => g.id === id);
+      if (!goal) return;
+      stopTimerInterval();
+      timerState.goalId = id;
+      timerState.totalSeconds = getGoalDurationSeconds(goal);
+      timerState.remainingSeconds = timerState.totalSeconds;
+      timerGoalName.textContent = goal.name;
+      timerProgressBar.style.setProperty('--goal-color', getGoalColor(goal, state.goals.indexOf(goal)));
+      timerProgressBar.style.background = getGoalColor(goal, state.goals.indexOf(goal));
+      renderTimer();
+      timerModal.classList.add('show');
+    }
+
+    function closeTimer() {
+      stopTimerInterval();
+      timerModal.classList.remove('show');
+    }
+
+    function completeTimerGoal() {
+      if (timerState.goalId) {
+        const elapsedSeconds = Math.max(0, timerState.totalSeconds - timerState.remainingSeconds);
+        completeGoal(timerState.goalId, elapsedSeconds || timerState.totalSeconds);
+      }
+      closeTimer();
+    }
+
+    function getRecoveryPromptForGoal(goal) {
+      const stats = computeStats(goal);
+      const durationSeconds = getGoalDurationSeconds(goal);
+      if (stats.missStreak >= 3) {
+        return {
+          title: 'Two-minute reset',
+          body: 'Do the smallest useful version immediately. The objective is to break the miss streak, not to finish perfectly.',
+          action: 'timer'
+        };
+      }
+      if (goal.goalLink) {
+        return {
+          title: 'Return to the resource',
+          body: 'Open the supporting resource and spend a short block getting back into the goal.',
+          action: 'resource'
+        };
+      }
+      if (durationSeconds <= 900) {
+        return {
+          title: 'Quick completion push',
+          body: 'Run the timer now and complete the shortest workable version of the goal.',
+          action: 'timer'
+        };
+      }
+      return {
+        title: 'Momentum sprint',
+        body: 'Start a short timer and move the goal forward before the day gets away from you.',
+        action: 'timer'
+      };
+    }
+
+    function openRedeemGoal(id) {
+      const goal = state.goals.find(g => g.id === id);
+      if (!goal) return;
+      const redemptionHistory = ensureRedemptionHistory(goal);
+      const prompt = redemptionHistory[todayString()] || getRecoveryPromptForGoal(goal);
+      currentRedeemGoalId = id;
+      currentRecoveryAction = prompt.action || 'timer';
+      redeemGoalName.textContent = `${goal.name}: recovery has been assigned for today.`;
+      redeemAssignedChallenge.innerHTML = `<strong>${escapeHtml(prompt.title)}</strong>${escapeHtml(prompt.body)}`;
+      redeemActionBtn.textContent = currentRecoveryAction === 'resource' && goal.goalLink ? 'Open Resource' : 'Start Recovery';
+      redeemModal.classList.add('show');
+    }
+
+    function closeRedeem() {
+      currentRedeemGoalId = null;
+      currentRecoveryAction = 'timer';
+      redeemModal.classList.remove('show');
+    }
+
+    function startRecoveryAction() {
+      const goal = state.goals.find(g => g.id === currentRedeemGoalId);
+      if (!goal) {
+        closeRedeem();
+        return;
+      }
+      if (currentRecoveryAction === 'resource' && goal.goalLink) {
+        openGoalLink(goal.id);
+      } else {
+        openGoalTimer(goal.id);
+      }
+      closeRedeem();
+    }
+
+    function buildInterventionMessage(goal) {
+      const stats = computeStats(goal);
+      return [
+        `Intervention for: ${goal.name}`,
+        `Status: ${stats.status.toUpperCase()}`,
+        `Miss streak: ${stats.missStreak} days`,
+        `Completion: ${stats.completedCount}/${stats.requiredCount} (${stats.rate}%)`,
+        '',
+        'This goal has gone at least three required days without a completion.',
+        '',
+        'Reset plan:',
+        '1. Do a two-minute version today.',
+        '2. Choose the next exact time to restart.',
+        '3. If the full goal is too large, reduce the target for the next 24 hours.',
+        '',
+        'The point is not punishment. The point is getting momentum back.'
+      ].join('\n');
+    }
+
+    function openInterventionGoal(id) {
+      const goal = state.goals.find(g => g.id === id);
+      if (!goal) return;
+      const stats = computeStats(goal);
+      currentInterventionGoalId = id;
+      interventionGoalName.textContent = `${goal.name}: ${stats.missStreak} days without completion.`;
+      interventionEmail.value = goal.email || '';
+      interventionMessage.value = buildInterventionMessage(goal);
+      interventionModal.classList.add('show');
+    }
+
+    function closeIntervention() {
+      currentInterventionGoalId = null;
+      interventionModal.classList.remove('show');
+    }
+
+    function logIntervention() {
+      const goal = state.goals.find(g => g.id === currentInterventionGoalId);
+      if (!goal) return;
+      const interventionHistory = ensureInterventionHistory(goal);
+      interventionHistory[todayString()] = {
+        email: interventionEmail.value.trim(),
+        message: interventionMessage.value,
+        createdAt: new Date().toISOString()
+      };
+      goal.updatedAt = new Date().toISOString();
+      saveState(false);
+      render();
+    }
+
+    function sendInterventionEmail() {
+      const goal = state.goals.find(g => g.id === currentInterventionGoalId);
+      if (!goal) return;
+      const email = interventionEmail.value.trim();
+      if (!email) {
+        alert('Add an email address first.');
+        interventionEmail.focus();
+        return;
+      }
+      logIntervention();
+      const subject = `Goal intervention: ${goal.name}`;
+      window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(interventionMessage.value)}`;
+      closeIntervention();
+    }
+
+    function openInspiration() {
+      let link = normalizeUrl(localStorage.getItem(INSPIRATION_LINK_KEY));
+      if (!link) {
+        const newLink = prompt('Add one inspiration video or message link:');
+        link = normalizeUrl(newLink);
+        if (!link) return;
+        localStorage.setItem(INSPIRATION_LINK_KEY, link);
+      } else {
+        const shouldOpen = confirm('Open your inspiration message? Press Cancel to replace the saved link.');
+        if (!shouldOpen) {
+          const newLink = prompt('Replace inspiration link:', link);
+          const normalized = normalizeUrl(newLink);
+          if (!normalized) return;
+          localStorage.setItem(INSPIRATION_LINK_KEY, normalized);
+          link = normalized;
+        }
+      }
+
+      const shouldOpen = confirm('Go watch your inspiration message now?');
+      if (shouldOpen) {
+        window.open(link, '_blank', 'noopener');
+      }
+    }
+
+    function openGoalLink(id) {
+      const goal = state.goals.find(g => g.id === id);
+      if (!goal) return;
+      const link = normalizeUrl(goal.goalLink);
+      if (!link) return;
+      window.open(link, '_blank', 'noopener');
+    }
+
+    function saveState(showSaved = true) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      localStorage.setItem(LAST_ACCESS_KEY, new Date().toISOString());
+      if (showSaved) {
+        saveBanner.innerHTML = '<div class="success-banner">Saved. Your goals are stored on this device.</div>';
+        setTimeout(() => {
+          saveBanner.innerHTML = '';
+        }, 1800);
+      }
+    }
+
+    function loadState() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        try {
+      const parsed = JSON.parse(raw);
+      state.goals = Array.isArray(parsed.goals) ? parsed.goals : [];
+      state.archivedGoals = Array.isArray(parsed.archivedGoals) ? parsed.archivedGoals : [];
+      state.recoveryPromptHistory = parsed && parsed.recoveryPromptHistory && typeof parsed.recoveryPromptHistory === 'object'
+        ? parsed.recoveryPromptHistory
+        : {};
+      state.achievements = parsed && parsed.achievements && typeof parsed.achievements === 'object'
+        ? parsed.achievements
+        : { unlocked: {} };
+      state.settings = parsed && parsed.settings && typeof parsed.settings === 'object'
+        ? parsed.settings
+        : { priorityMode: false };
+      state.goals.forEach((goal, index) => {
+        goal.color = getGoalColor(goal, index);
+        goal.goalLink = normalizeUrl(goal.goalLink);
+        goal.icon = getGoalIconData(goal.icon) ? goal.icon : '';
+        goal.priority = Number.isFinite(Number(goal.priority)) ? Number(goal.priority) : 5;
+        goal.concludedAt = goal.concludedAt || null;
+        ensureTimeHistory(goal);
+        ensureRedemptionHistory(goal);
+        ensureInterventionHistory(goal);
+        ensureCompletionMoments(goal);
+      });
+      state.archivedGoals.forEach((goal, index) => {
+        goal.color = getGoalColor(goal, index);
+        goal.goalLink = normalizeUrl(goal.goalLink);
+        goal.icon = getGoalIconData(goal.icon) ? goal.icon : '';
+        goal.priority = Number.isFinite(Number(goal.priority)) ? Number(goal.priority) : 5;
+        goal.concludedAt = goal.concludedAt || null;
+        ensureTimeHistory(goal);
+        ensureRedemptionHistory(goal);
+        ensureInterventionHistory(goal);
+        ensureCompletionMoments(goal);
+      });
+      normalizeGoalPriorities();
+        } catch (err) {
+          console.error('Failed to parse saved data', err);
+          state.goals = [];
+          state.archivedGoals = [];
+          state.recoveryPromptHistory = {};
+          state.settings = { priorityMode: false };
+        }
+      }
+      ensureRecoveryPromptHistory();
+      ensureAchievementState();
+      ensureArchivedGoals();
+      ensureSettings();
+    }
+
+    function checkInactivity() {
+      const last = localStorage.getItem(LAST_ACCESS_KEY);
+      if (!last) return;
+      const lastDate = new Date(last);
+      const now = new Date();
+      const diffDays = Math.floor((now - lastDate) / (1000 * 60 * 60 * 24));
+      if (diffDays >= 7) {
+        inactivityBanner.innerHTML = '<div class="warning-banner">This app has not been opened in over a week. That is exactly how goals turn into mysterious historical artifacts. You may want an email or push reminder in a later version.</div>';
+      } else {
+        inactivityBanner.innerHTML = '';
+      }
+    }
+
+    function ensureHistory(goal) {
+      if (!goal.history) goal.history = {};
+      return goal.history;
+    }
+
+    function applyAutomaticMisses() {
+      const today = todayString();
+      let changed = false;
+      state.goals.forEach(goal => {
+        const history = ensureHistory(goal);
+        const dates = getTrackingDates(goal);
+        dates.forEach(date => {
+          if (date >= today) return;
+          if (!isRequiredDay(goal, date)) return;
+          if (history[date] === 'complete' || history[date] === 'missed') return;
+          history[date] = 'missed';
+          goal.updatedAt = new Date().toISOString();
+          changed = true;
+        });
+      });
+      if (changed) saveState(false);
+    }
+
+    function maybeShowAutomaticRecoveryPrompt() {
+      const today = todayString();
+      const promptHistory = ensureRecoveryPromptHistory();
+      if (promptHistory[today]) return;
+
+      const candidates = state.goals
+        .map(goal => {
+          const history = ensureHistory(goal);
+          const redemptionHistory = ensureRedemptionHistory(goal);
+          const stats = computeStats(goal);
+          const priorDate = previousDate(today);
+          const priorMissed = history[priorDate] === 'missed';
+          const availableToday = today >= goal.startDate && today <= goal.endDate && isRequiredDay(goal, today);
+          const alreadyRecoveredToday = Boolean(redemptionHistory[today]);
+          return { goal, stats, priorMissed, availableToday, alreadyRecoveredToday };
+        })
+        .filter(entry => entry.priorMissed && entry.availableToday && !entry.alreadyRecoveredToday && entry.stats.missStreak >= 1)
+        .sort((a, b) => b.stats.missStreak - a.stats.missStreak);
+
+      const candidate = candidates[0];
+      if (!candidate) return;
+
+      const prompt = getRecoveryPromptForGoal(candidate.goal);
+      ensureRedemptionHistory(candidate.goal)[today] = {
+        title: prompt.title,
+        body: prompt.body,
+        action: prompt.action,
+        auto: true,
+        createdAt: new Date().toISOString()
+      };
+      promptHistory[today] = {
+        goalId: candidate.goal.id,
+        createdAt: new Date().toISOString()
+      };
+      candidate.goal.updatedAt = new Date().toISOString();
+      saveState(false);
+      openRedeemGoal(candidate.goal.id);
+    }
+
+    function markGoal(id, status) {
+      const goal = state.goals.find(g => g.id === id);
+      if (!goal) return;
+      
+      const history = ensureHistory(goal);
+      const completionMoments = ensureCompletionMoments(goal);
+      const redemptionHistory = ensureRedemptionHistory(goal);
+      const wasCompleteToday = history[todayString()] === 'complete';
+      history[todayString()] = status;
+      if (status === 'complete') {
+        if (!wasCompleteToday) {
+          completionMoments[todayString()] = new Date().toISOString();
+        }
+        delete redemptionHistory[todayString()];
+      } else {
+        delete completionMoments[todayString()];
+      }
+      goal.updatedAt = new Date().toISOString();
+      if (status === 'complete' && !wasCompleteToday) {
+        startCelebration(id);
+        queueAchievements(checkForAchievements(goal));
+      } else if (celebrationGoalId === id) {
+        celebrationGoalId = null;
+        clearTimeout(celebrationTimer);
+      }
+      saveState(false);
+      render();
+    }
+
+    function clearTodayMark(id) {
+      const goal = state.goals.find(g => g.id === id);
+      if (!goal || !goal.history) return;
+      playSound('error');
+      delete goal.history[todayString()];
+      if (goal.completionMoments) {
+        delete goal.completionMoments[todayString()];
+      }
+      if (goal.timeHistory) {
+        delete goal.timeHistory[todayString()];
+      }
+      if (goal.redemptionHistory) {
+        delete goal.redemptionHistory[todayString()];
+      }
+      if (celebrationGoalId === id) {
+        celebrationGoalId = null;
+        clearTimeout(celebrationTimer);
+      }
+      clearTimeout(completionReturnTimer);
+      if (completionReturnBtn) {
+        completionReturnBtn.classList.remove('show');
+      }
+      if (completionModal) {
+        completionModal.classList.remove('show');
+      }
+      stopCompletionGif();
+      goal.updatedAt = new Date().toISOString();
+      saveState(false);
+      render();
+    }
+
+    function getTrackingDates(goal) {
+      const start = new Date(goal.startDate + 'T00:00:00');
+      const end = new Date(Math.min(new Date(goal.endDate + 'T00:00:00').getTime(), new Date().setHours(0,0,0,0)));
+      if (isNaN(start) || isNaN(end) || end < start) return [];
+      const dates = [];
+      const cursor = new Date(start);
+      while (cursor <= end) {
+        const y = cursor.getFullYear();
+        const m = String(cursor.getMonth() + 1).padStart(2, '0');
+        const d = String(cursor.getDate()).padStart(2, '0');
+        dates.push(`${y}-${m}-${d}`);
+        cursor.setDate(cursor.getDate() + 1);
+      }
+      return dates;
+    }
+
+    function isOneShotGoal(goal) {
+      return goal && goal.frequency === 'One Shot';
+    }
+
+    function getOneShotCompletionDate(goal, dates) {
+      const history = ensureHistory(goal);
+      return dates.find(date => history[date] === 'complete') || null;
+    }
+
+    function isRequiredDay(goal, dateStr) {
+      if (isOneShotGoal(goal)) return dateStr === goal.endDate;
+      const date = new Date(dateStr + 'T00:00:00');
+      const day = date.getDay();
+      if (goal.frequency === 'Daily' || goal.frequency === 'Custom Daily Check') return true;
+      if (goal.frequency === 'Weekdays') return day >= 1 && day <= 5;
+      if (goal.frequency === '3x Weekly') return true;
+      return true;
+    }
+
+    function computeStats(goal) {
+      const history = ensureHistory(goal);
+      const dates = getTrackingDates(goal);
+      let requiredDates = dates.filter(d => isRequiredDay(goal, d));
+
+      if (isOneShotGoal(goal)) {
+        const completionDate = getOneShotCompletionDate(goal, dates);
+        const today = todayString();
+        const isExpired = today > goal.endDate;
+        return {
+          requiredCount: 1,
+          completedCount: completionDate ? 1 : 0,
+          incompleteCount: completionDate ? 0 : (isExpired ? 1 : 0),
+          rate: completionDate ? 100 : 0,
+          missStreak: completionDate ? 0 : (isExpired ? 1 : 0),
+          status: completionDate ? 'green' : (isExpired ? 'red' : 'yellow')
+        };
+      }
+
+      if (goal.frequency === '3x Weekly') {
+        const grouped = {};
+        for (const date of dates) {
+          const dt = new Date(date + 'T00:00:00');
+          const year = dt.getFullYear();
+          const firstJan = new Date(year, 0, 1);
+          const days = Math.floor((dt - firstJan) / 86400000);
+          const week = Math.ceil((days + firstJan.getDay() + 1) / 7);
+          const key = `${year}-W${week}`;
+          if (!grouped[key]) grouped[key] = [];
+          grouped[key].push(date);
+        }
+
+        let targetCount = 0;
+        let completedCount = 0;
+        let missedEquivalent = 0;
+
+        Object.values(grouped).forEach(weekDates => {
+          targetCount += 3;
+          const completions = weekDates.filter(d => history[d] === 'complete').length;
+          completedCount += Math.min(completions, 3);
+          missedEquivalent += Math.max(0, 3 - Math.min(completions, 3));
+        });
+
+        const rate = targetCount ? Math.round((completedCount / targetCount) * 100) : 0;
+        const missStreak = getRecentMissStreak(goal, dates);
+        return {
+          requiredCount: targetCount,
+          completedCount,
+          incompleteCount: missedEquivalent,
+          rate,
+          missStreak,
+          status: determineLight(rate, missStreak)
+        };
+      }
+
+      const requiredCount = requiredDates.length;
+      const completedCount = requiredDates.filter(d => history[d] === 'complete').length;
+      const incompleteCount = requiredDates.filter(d => history[d] === 'missed').length;
+      const rate = requiredCount ? Math.round((completedCount / requiredCount) * 100) : 0;
+      const missStreak = getRecentMissStreak(goal, requiredDates);
+
+      return {
+        requiredCount,
+        completedCount,
+        incompleteCount,
+        rate,
+        missStreak,
+        status: determineLight(rate, missStreak)
+      };
+    }
+
+    function getRecentMissStreak(goal, requiredDates) {
+      const history = ensureHistory(goal);
+      let streak = 0;
+      for (let i = requiredDates.length - 1; i >= 0; i--) {
+        const mark = history[requiredDates[i]];
+        if (mark === 'missed') {
+          streak++;
+        } else if (mark === 'complete') {
+          break;
+        } else {
+          break;
+        }
+      }
+      return streak;
+    }
+
+    function determineLight(rate, missStreak) {
+      if (rate < 40 || missStreak >= 3) return 'red';
+      if (rate < 70 || missStreak >= 1) return 'yellow';
+      return 'green';
+    }
+
+    function deleteGoal(id) {
+      state.goals = state.goals.filter(g => g.id !== id);
+      saveState();
+      render();
+    }
+
+    function archiveGoal(id) {
+      const goal = state.goals.find(g => g.id === id);
+      if (!goal) return;
+      state.goals = state.goals.filter(g => g.id !== id);
+      ensureArchivedGoals().unshift({
+        ...goal,
+        archivedAt: new Date().toISOString()
+      });
+      if (currentHubGoalId === id) closeGoalHub();
+      if (currentDetailGoalId === id) closeGoalDetails();
+      closeGoalDashboard();
+      saveState();
+      render();
+      openTrackingModal();
+    }
+
+    function deleteArchivedGoal(id) {
+      state.archivedGoals = ensureArchivedGoals().filter(g => g.id !== id);
+      closeGoalDashboard();
+      saveState();
+      renderTrackingModal();
+    }
+
+    function editGoal(id) {
+      const goal = state.goals.find(g => g.id === id);
+      if (!goal) return;
+      goalName.value = goal.name;
+      startDate.value = goal.startDate;
+      endDate.value = goal.endDate;
+      performTime.value = goal.bestTime;
+      reminderTime.value = goal.reminderTime || '';
+      emailReminder.value = goal.email || '';
+      goalLink.value = goal.goalLink || '';
+      estimatedHours.value = goal.estimatedHours || '';
+      estimatedMinutes.value = goal.estimatedMinutes || '';
+      goalFrequency.value = goal.frequency || 'Daily';
+      goalColor.value = getGoalColor(goal);
+      goalIcon.value = getGoalIconData(goal.icon) ? goal.icon : '';
+      priorityLevel.value = String(Number.isFinite(Number(goal.priority)) ? Number(goal.priority) : 5);
+      syncGoalIconPicker();
+      syncPriorityModeUi();
+      deleteGoal(id);
+      openGoalCreation();
+      setWizardStep(1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showGoalDetails(id) {
+      const goal = state.goals.find(g => g.id === id);
+      if (!goal) return;
+      const redemptionCount = Object.keys(ensureRedemptionHistory(goal)).length;
+      const interventionCount = Object.keys(ensureInterventionHistory(goal)).length;
+      
+      currentDetailGoalId = id;
+      detailsGoalName.textContent = escapeHtml(goal.name);
+      
+      detailsContent.innerHTML = `
+        <div class="legend-item"><strong>Start Date:</strong> ${formatDate(goal.startDate)}</div>
+        <div class="legend-item"><strong>End Date:</strong> ${formatDate(goal.endDate)}</div>
+        <div class="legend-item"><strong>Goal Icon:</strong> ${getGoalIconData(goal.icon) ? getGoalIconData(goal.icon).label : 'None'}</div>
+        <div class="legend-item"><strong>Priority Mode:</strong> ${ensureSettings().priorityMode ? 'On' : 'Off'}</div>
+        ${ensureSettings().priorityMode ? `<div class="legend-item"><strong>Priority:</strong> ${Number.isFinite(Number(goal.priority)) ? Number(goal.priority) : 5}</div>` : ''}
+        <div class="legend-item"><strong>Best Time:</strong> ${escapeHtml(goal.bestTime)}</div>
+        <div class="legend-item"><strong>Estimated Duration:</strong> ${goal.estimatedHours || 0}h ${goal.estimatedMinutes || 0}m</div>
+        <div class="legend-item"><strong>Reminder Time:</strong> ${goal.reminderTime ? escapeHtml(goal.reminderTime) : 'None'}</div>
+        <div class="legend-item"><strong>Frequency:</strong> ${escapeHtml(goal.frequency)}</div>
+        <div class="legend-item"><strong>Goal Resource Link:</strong> ${goal.goalLink ? `<a href="${escapeHtml(goal.goalLink)}" target="_blank" rel="noopener" style="color:var(--accent);">Open</a>` : 'None'}</div>
+        <div class="legend-item"><strong>Accumulated Time:</strong> ${formatDuration(getGoalTotalSeconds(goal))}</div>
+        <div class="legend-item"><strong>Redemptions:</strong> ${redemptionCount}</div>
+        <div class="legend-item"><strong>Interventions:</strong> ${interventionCount}</div>
+      `;
+      
+      detailsEditBtn.onclick = () => {
+        goalDetailsModal.classList.remove('show');
+        editGoal(id);
+      };
+      
+      detailsDeleteBtn.onclick = () => {
+        goalDetailsModal.classList.remove('show');
+        deleteGoal(id);
+      };
+
+      syncPriorityModeUi();
+      
+      goalDetailsModal.classList.add('show');
+    }
+
+    function closeGoalDetails() {
+      goalDetailsModal.classList.remove('show');
+      currentDetailGoalId = null;
+    }
+
+    function openGoalHub(id) {
+      const goal = state.goals.find(g => g.id === id);
+      if (!goal) return;
+      const stats = computeStats(goal);
+      const todayMark = goal.history && goal.history[todayString()] ? goal.history[todayString()] : 'unmarked';
+      const recoveryToday = ensureRedemptionHistory(goal)[todayString()];
+      currentHubGoalId = id;
+      goalHubTitle.textContent = goal.name;
+      goalHubContent.innerHTML = `
+        <div class="legend-item"><strong>Today:</strong> ${labelForMark(todayMark)}</div>
+        <div class="legend-item"><strong>Status:</strong> ${stats.status}</div>
+        ${ensureSettings().priorityMode ? `<div class="legend-item"><strong>Priority:</strong> ${getGoalPriority(goal)}</div>` : ''}
+        <div class="legend-item"><strong>Completion:</strong> ${stats.completedCount}/${stats.requiredCount} (${stats.rate}%)</div>
+        <div class="legend-item"><strong>Time:</strong> ${formatDuration(getGoalTotalSeconds(goal))}</div>
+        <div class="legend-item"><strong>Miss streak:</strong> ${stats.missStreak}</div>
+        ${recoveryToday ? `<div class="legend-item"><strong>Recovery Today:</strong> ${escapeHtml(recoveryToday.title || recoveryToday.challenge || 'Assigned')}</div>` : ''}
+      `;
+      goalHubCompleteBtn.classList.toggle('is-toggle-complete', todayMark !== 'complete');
+      goalHubCompleteBtn.classList.toggle('is-toggle-undo', todayMark === 'complete');
+      goalHubCompleteIcon.innerHTML = todayMark === 'complete' ? getUiIconMarkup('undo') : getUiIconMarkup('check');
+      goalHubCompleteLabel.textContent = todayMark === 'complete' ? 'Undo' : 'Did It';
+      goalHubModal.classList.add('show');
+    }
+
+    function closeGoalHub() {
+      currentHubGoalId = null;
+      goalHubModal.classList.remove('show');
+    }
+
+    function getTrackingDayClass(goal, date) {
+      const history = ensureHistory(goal);
+      const mark = history[date];
+      if (!isRequiredDay(goal, date)) return 'not-required';
+      if (mark === 'complete') return 'complete';
+      return 'pending';
+    }
+
+    function buildDateRange(startDate, endDate) {
+      const start = new Date(startDate + 'T00:00:00');
+      const end = new Date(endDate + 'T00:00:00');
+      if (isNaN(start) || isNaN(end) || end < start) return [];
+      const dates = [];
+      const cursor = new Date(start);
+      while (cursor <= end) {
+        const y = cursor.getFullYear();
+        const m = String(cursor.getMonth() + 1).padStart(2, '0');
+        const d = String(cursor.getDate()).padStart(2, '0');
+        dates.push(`${y}-${m}-${d}`);
+        cursor.setDate(cursor.getDate() + 1);
+      }
+      return dates;
+    }
+
+    function shortDateLabel(dateStr) {
+      const date = new Date(dateStr + 'T00:00:00');
+      if (isNaN(date)) return dateStr;
+      const month = date.toLocaleDateString(undefined, { month: 'short' });
+      return `<strong>${date.getDate()}</strong>${month}`;
+    }
+
+    function getGoalDashboardPoints(goal) {
+      const dates = buildDateRange(goal.startDate, goal.endDate);
+      const history = ensureHistory(goal);
+      const redemptionHistory = ensureRedemptionHistory(goal);
+      const today = todayString();
+      if (isOneShotGoal(goal)) {
+        const completionDate = getOneShotCompletionDate(goal, dates);
+        return dates.map(date => {
+          if (completionDate) {
+            return {
+              date,
+              score: date === completionDate ? 1 : 0,
+              stateLabel: date === completionDate ? 'One-shot complete' : 'Inactive'
+            };
+          }
+          if (date < goal.endDate) {
+            return {
+              date,
+              score: 0,
+              stateLabel: date > today ? 'Upcoming' : 'In progress'
+            };
+          }
+          return {
+            date,
+            score: date > today ? 0 : -1,
+            stateLabel: date > today ? 'Upcoming' : 'One-shot missed'
+          };
+        });
+      }
+
+      return dates.map(date => {
+        const isFuture = date > today;
+        const isRequired = isRequiredDay(goal, date);
+        const mark = history[date] || 'unmarked';
+        let score = 0;
+        let stateLabel = 'Not scheduled';
+
+        if (isFuture) {
+          stateLabel = 'Upcoming';
+        } else if (!isRequired) {
+        } else if (mark === 'complete') {
+          score = 1;
+          stateLabel = 'Complete';
+        } else if (redemptionHistory[date]) {
+          score = 1;
+          stateLabel = `Recovery: ${redemptionHistory[date].title || redemptionHistory[date].challenge || 'Assigned'}`;
+        } else {
+          score = -1;
+          stateLabel = mark === 'missed' ? 'Missed' : 'Not complete';
+        }
+
+        return { date, score, stateLabel };
+      });
+    }
+
+    function openGoalDashboard(id, source = 'active') {
+      const goal = getGoalById(id, source);
+      if (!goal) return;
+
+      const stats = computeStats(goal);
+      const collection = source === 'archived' ? ensureArchivedGoals() : state.goals;
+      const goalColorValue = getGoalColor(goal, collection.indexOf(goal));
+      const goalColorSoft = hexToRgba(goalColorValue, 0.24);
+      const redeems = Object.keys(ensureRedemptionHistory(goal)).length;
+      const totalSeconds = getGoalTotalSeconds(goal);
+      const timeHistory = ensureTimeHistory(goal);
+      const start = new Date(goal.startDate + 'T00:00:00');
+      const end = new Date(goal.endDate + 'T00:00:00');
+      const monthLabel = start.toLocaleDateString(undefined, {
+        month: 'long',
+        year: 'numeric'
+      }) === end.toLocaleDateString(undefined, {
+        month: 'long',
+        year: 'numeric'
+      })
+        ? start.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })
+        : `${start.toLocaleDateString(undefined, { month: 'short', year: 'numeric' })} - ${end.toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}`;
+      const dateCells = [];
+
+      for (let i = 0; i < start.getDay(); i++) {
+        dateCells.push('<div class="dashboard-date-tile is-outside"><div class="dashboard-day-number">00</div><div class="schedule-box not-required"></div></div>');
+      }
+
+      buildDateRange(goal.startDate, goal.endDate).forEach(date => {
+        const dayDate = new Date(date + 'T00:00:00');
+        const markClass = getTrackingDayClass(goal, date);
+        const label = formatDate(date);
+        const daySeconds = Number(timeHistory[date] || 0);
+        const dayStatus = labelForMark(goal.history && goal.history[date] ? goal.history[date] : 'unmarked');
+        dateCells.push(`
+          <div class="dashboard-date-tile ${markClass === 'complete' ? 'is-complete' : ''}" style="--goal-color:${goalColorValue}; --goal-color-soft:${goalColorSoft};" title="${escapeHtml(goal.name)} - ${label}: ${dayStatus} - ${formatDuration(daySeconds)} logged">
+            <div class="dashboard-day-number">${dayDate.getDate()}</div>
+            <div class="schedule-box ${markClass}">${markClass === 'complete' ? '&#10003;' : ''}</div>
+          </div>
+        `);
+      });
+
+      while (dateCells.length % 7 !== 0) {
+        dateCells.push('<div class="dashboard-date-tile is-outside"><div class="dashboard-day-number">00</div><div class="schedule-box not-required"></div></div>');
+      }
+
+      const resourceButton = goal.goalLink
+        ? `<button class="btn-secondary" type="button" onclick="openGoalLink('${goal.id}')"><span class="inline-ui-icon">${getUiIconMarkup('link')}</span>Open Resource</button>`
+        : '';
+      const detailsButton = source === 'active'
+        ? `<button class="btn-secondary" type="button" onclick="openGoalDetailsFromDashboard('${goal.id}')"><span class="inline-ui-icon">${getUiIconMarkup('details')}</span>Details</button>`
+        : '';
+      const concludeButton = source === 'active' && isGoalAwaitingConclusion(goal)
+        ? `<button class="btn-primary" type="button" onclick="confirmGoalConclusion('${goal.id}')">Confirm Goal End</button>`
+        : '';
+      const archiveButton = source === 'active'
+        ? `<button class="btn-secondary" type="button" onclick="archiveGoal('${goal.id}')">Archive</button>`
+        : `<button class="btn-danger" type="button" onclick="deleteArchivedGoal('${goal.id}')">Remove Archive Entry</button>`;
+
+      goalDashboardTitle.textContent = goal.name;
+      goalDashboardContent.innerHTML = `
+        <p class="muted">${formatDate(goal.startDate)} to ${formatDate(goal.endDate)} - ${escapeHtml(goal.frequency || 'Daily')}</p>
+        <div class="goal-dashboard-summary">
+          <div class="goal-dashboard-stat"><strong>${stats.rate}%</strong><span>Completion</span></div>
+          <div class="goal-dashboard-stat"><strong>${stats.completedCount}</strong><span>Completed Days</span></div>
+          <div class="goal-dashboard-stat"><strong>${Math.max(0, stats.requiredCount - stats.completedCount)}</strong><span>Open Days</span></div>
+          <div class="goal-dashboard-stat"><strong>${redeems}</strong><span>Redeems</span></div>
+          <div class="goal-dashboard-stat"><strong>${formatDuration(totalSeconds)}</strong><span>Total Time</span></div>
+        </div>
+        <div class="goal-dashboard-meta-list">
+          <div class="legend-item"><strong>Frequency:</strong> ${escapeHtml(goal.frequency || 'Daily')}</div>
+          <div class="legend-item"><strong>Best Time:</strong> ${escapeHtml(goal.bestTime || 'Flexible')}</div>
+          <div class="legend-item"><strong>Reminder:</strong> ${goal.reminderTime ? escapeHtml(goal.reminderTime) : 'None'}</div>
+          <div class="legend-item"><strong>Resource:</strong> ${goal.goalLink ? 'Saved' : 'None'}</div>
+          ${source === 'active' && isGoalAwaitingConclusion(goal) ? `<div class="legend-item"><strong>Status:</strong> Final date has passed. Confirm the goal end to close it out.</div>` : ''}
+          ${source === 'archived' ? `<div class="legend-item"><strong>Archived:</strong> ${formatDate(String(goal.archivedAt || '').slice(0, 10)) || 'Saved'}</div>` : ''}
+        </div>
+        <div class="dashboard-calendar-wrap" style="--goal-color:${goalColorValue}; --goal-color-soft:${goalColorSoft};">
+          <div class="tracking-month-label">${monthLabel}</div>
+          <div class="dashboard-calendar-grid">
+            ${dateCells.join('')}
+          </div>
+        </div>
+        <div class="toolbar" style="margin-top:14px;">
+          ${resourceButton}
+          ${detailsButton}
+          ${concludeButton}
+          ${archiveButton}
+        </div>
+        <p class="footer-note">Each date shows a small box. Empty means not completed yet. A filled box means completed for that day.</p>
+      `;
+
+      goalDashboardModal.classList.add('show');
+    }
+
+    function closeGoalDashboard() {
+      goalDashboardModal.classList.remove('show');
+    }
+
+    function openGoalDetailsFromDashboard(id) {
+      closeGoalDashboard();
+      showGoalDetails(id);
+    }
+
+    function renderTrackingModal() {
+      const archivedGoals = ensureArchivedGoals();
+      if (!state.goals.length && !archivedGoals.length) {
+        trackingContent.innerHTML = '<div class="empty-state">No goals yet. Create a goal first, then this screen will show long-term tracking.</div>';
+        return;
+      }
+
+      const goalCards = state.goals.map((goal, index) => {
+        const stats = computeStats(goal);
+        const goalColorValue = getGoalColor(goal, index);
+        const goalColorSoft = hexToRgba(goalColorValue, 0.24);
+        const totalSeconds = getGoalTotalSeconds(goal);
+        const timeHistory = ensureTimeHistory(goal);
+        const start = new Date(goal.startDate + 'T00:00:00');
+        const end = new Date(goal.endDate + 'T00:00:00');
+        if (isNaN(start) || isNaN(end) || end < start) {
+          return '';
+        }
+
+        const monthLabel = start.toLocaleDateString(undefined, {
+          month: 'long',
+          year: 'numeric'
+        }) === end.toLocaleDateString(undefined, {
+          month: 'long',
+          year: 'numeric'
+        })
+          ? start.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })
+          : `${start.toLocaleDateString(undefined, { month: 'short', year: 'numeric' })} - ${end.toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}`;
+
+        const startOffset = start.getDay();
+        const dayCells = [];
+
+        for (let i = 0; i < startOffset; i++) {
+          dayCells.push('<div class="tracking-date-tile is-outside"><div class="tracking-day-number">00</div><div class="schedule-box not-required"></div></div>');
+        }
+
+        buildDateRange(goal.startDate, goal.endDate).forEach(date => {
+          const dayDate = new Date(date + 'T00:00:00');
+          const markClass = getTrackingDayClass(goal, date);
+          const label = formatDate(date);
+          const daySeconds = Number(timeHistory[date] || 0);
+          const dayStatus = labelForMark(goal.history && goal.history[date] ? goal.history[date] : 'unmarked');
+          dayCells.push(`
+            <div class="tracking-date-tile ${markClass === 'complete' ? 'is-complete' : ''}" style="--goal-color:${goalColorValue}; --goal-color-soft:${goalColorSoft};" title="${escapeHtml(goal.name)} - ${label}: ${dayStatus} - ${formatDuration(daySeconds)} logged">
+              <div class="tracking-day-number">${dayDate.getDate()}</div>
+              <div class="schedule-box ${markClass}">${markClass === 'complete' ? '&#10003;' : ''}</div>
+            </div>
+          `);
+        });
+
+        while (dayCells.length % 7 !== 0) {
+          dayCells.push('<div class="tracking-date-tile is-outside"><div class="tracking-day-number">00</div><div class="schedule-box not-required"></div></div>');
+        }
+
+        return `
+          <div class="tracking-goal-card">
+            <button class="tracking-goal-head" type="button" onclick="openGoalDashboard('${goal.id}')">
+              <div class="tracking-goal-info">
+                <div class="tracking-goal-name">${escapeHtml(goal.name)}</div>
+              </div>
+            </button>
+            <div class="tracking-month-label">${monthLabel}</div>
+            <div class="tracking-date-grid">
+              ${dayCells.join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      const archiveHtml = archivedGoals.length
+        ? `
+          <div class="tracking-section-title">Archive</div>
+          <div class="archive-list">
+            ${archivedGoals.map((goal, index) => {
+              const stats = computeStats(goal);
+              const totalSeconds = getGoalTotalSeconds(goal);
+              return `
+                <div class="archive-card">
+                  <div class="archive-card-head">
+                    <div>
+                      <div class="archive-card-name">${escapeHtml(goal.name)}</div>
+                      <div class="archive-card-meta">
+                        ${formatDate(goal.startDate)} to ${formatDate(goal.endDate)}<br>
+                        ${stats.completedCount}/${stats.requiredCount} completed · ${formatDuration(totalSeconds)} logged
+                      </div>
+                    </div>
+                    <span class="traffic ${stats.status}" title="${stats.status}"></span>
+                  </div>
+                  <div class="archive-card-actions">
+                    <button class="btn-secondary" type="button" onclick="openGoalDashboard('${goal.id}', 'archived')">Review</button>
+                    <button class="btn-danger" type="button" onclick="deleteArchivedGoal('${goal.id}')">Remove</button>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `
+        : '';
+
+      trackingContent.innerHTML = `
+        ${goalCards ? `<div class="tracking-calendar-list">${goalCards}</div>` : '<div class="empty-state">No active goals in the tracker right now.</div>'}
+        ${archiveHtml}
+      `;
+    }
+
+    function openTrackingModal() {
+      renderTrackingModal();
+      trackingModal.classList.add('show');
+    }
+
+    function closeTrackingModal() {
+      trackingModal.classList.remove('show');
+    }
+
+    function getGoalPriority(goal) {
+      const priority = Number(goal && goal.priority);
+      if (!Number.isFinite(priority)) return 5;
+      return Math.max(1, Math.min(10, priority));
+    }
+
+    function getSquareGoalsBySlot() {
+      const slots = [null, null, null, null];
+      const goals = state.goals.slice(0, 4);
+      if (!ensureSettings().priorityMode) {
+        goals.forEach((goal, index) => {
+          if (index < 4) slots[index] = goal;
+        });
+        return slots;
+      }
+
+      const today = todayString();
+      const completedGoals = goals
+        .filter(goal => goal && goal.history && goal.history[today] === 'complete')
+        .sort((a, b) => {
+          const aTime = Date.parse(ensureCompletionMoments(a)[today] || '') || 0;
+          const bTime = Date.parse(ensureCompletionMoments(b)[today] || '') || 0;
+          if (aTime !== bTime) return aTime - bTime;
+          return getGoalPriority(b) - getGoalPriority(a);
+        });
+
+      const incompleteGoals = goals
+        .filter(goal => !goal || !goal.history || goal.history[today] !== 'complete')
+        .sort((a, b) => {
+          const priorityDiff = getGoalPriority(b) - getGoalPriority(a);
+          if (priorityDiff !== 0) return priorityDiff;
+          return goals.indexOf(a) - goals.indexOf(b);
+        });
+
+      const completedSlotIndexes = [3, 2, 1, 0];
+      completedGoals.forEach((goal, index) => {
+        if (index < completedSlotIndexes.length) {
+          slots[completedSlotIndexes[index]] = goal;
+        }
+      });
+
+      let incompleteCursor = 0;
+      for (let slotIndex = 0; slotIndex < slots.length; slotIndex++) {
+        if (slots[slotIndex]) continue;
+        if (incompleteCursor >= incompleteGoals.length) break;
+        slots[slotIndex] = incompleteGoals[incompleteCursor];
+        incompleteCursor += 1;
+      }
+
+      return slots;
+    }
+
+    function renderProgressSquare() {
+      const container = progressSquareContainer;
+      if (!container) return;
+
+      const goalsBySlot = getSquareGoalsBySlot();
+      const priorityModeEnabled = ensureSettings().priorityMode;
+      const positionOrder = priorityModeEnabled ? [1, 4, 3, 2] : [1, 2, 3, 4];
+      const topPriorityGoalId = priorityModeEnabled
+        ? (() => {
+            const topGoal = goalsBySlot.find(goal => goal && (!goal.history || goal.history[todayString()] !== 'complete'));
+            return topGoal ? topGoal.id : null;
+          })()
+        : null;
+      const fragments = [];
+
+      for (let i = 0; i < 4; i++) {
+        const goal = goalsBySlot[i];
+        const fragmentNumber = positionOrder[i];
+        if (goal) {
+          const stats = computeStats(goal);
+          const goalColor = getGoalColor(goal, state.goals.indexOf(goal));
+          const goalIconData = getGoalIconData(goal.icon);
+          const isFinishedToday = goal.history && goal.history[todayString()] === 'complete';
+          const isPriorityFocus = topPriorityGoalId === goal.id;
+          const segmentClasses = [
+            'progress-segment',
+            `fragment-${fragmentNumber}`,
+            celebrationGoalId === goal.id ? 'is-complete' : '',
+            isFinishedToday ? 'is-finished' : '',
+            isPriorityFocus ? 'is-priority-focus' : ''
+          ].filter(Boolean).join(' ');
+          const label = escapeHtml(goal.name.length > 18 ? `${goal.name.slice(0, 18)}...` : goal.name);
+          fragments.push(`
+            <button
+              class="${segmentClasses}"
+              type="button"
+              style="background:${goalColor};"
+              data-fragment-action="goal"
+              data-goal-id="${goal.id}"
+              aria-label="Open ${escapeHtml(goal.name)}"
+              title="${escapeHtml(goal.name)}"
+            >
+              <span class="segment-core">
+                ${goalIconData ? `<span class="segment-center-icon"><span class="segment-symbol goal-icon">${getGoalIconMarkup(goal.icon)}</span></span>` : ''}
+              </span>
+            </button>
+          `);
+        } else if (state.goals.length < 4) {
+          const hasAnyEmptyBefore = goalsBySlot.slice(0, i).some(item => !item);
+          if (hasAnyEmptyBefore) {
+            fragments.push('<div class="progress-segment is-empty" aria-hidden="true"></div>');
+            continue;
+          }
+          fragments.push(`
+            <button
+              class="progress-segment fragment-${fragmentNumber} is-empty"
+              type="button"
+              data-fragment-action="add"
+              aria-label="Add goal"
+              title="Add goal"
+            >
+              <span class="segment-core">
+                <span class="segment-symbol">+</span>
+              </span>
+            </button>
+          `);
+        } else {
+          fragments.push('<div class="progress-segment is-empty" aria-hidden="true"></div>');
+        }
+      }
+
+      let html = `<div class="progress-square">${fragments.join('')}</div>`;
+      const activeGoals = goalsBySlot.filter(Boolean);
+      const allCompleted = activeGoals.length > 0 && activeGoals.every(g => g.history && g.history[todayString()] === 'complete');
+      if (allCompleted) {
+        html += '<div class="completion-text show">All Goals Completed</div>';
+      }
+
+      container.innerHTML = html;
+    }
+
+    function handleProgressSquareClick(event) {
+      const actionTarget = event.target.closest('[data-fragment-action]');
+      if (!actionTarget) return;
+      playSound('select');
+      const action = actionTarget.dataset.fragmentAction;
+      if (action === 'add') {
+        openGoalCreation();
+        return;
+      }
+      if (action === 'goal' && actionTarget.dataset.goalId) {
+        openGoalHub(actionTarget.dataset.goalId);
+      }
+    }
+
+    function renderGoals() {
+      if (!state.goals.length) {
+        goalList.innerHTML = '<div class="empty-state">No goals yet. Add 1 to 4 goals to get started.</div>';
+        return;
+      }
+
+      goalList.innerHTML = state.goals.map(goal => {
+        const stats = computeStats(goal);
+        const todayMark = goal.history && goal.history[todayString()] ? goal.history[todayString()] : 'unmarked';
+        const goalColorValue = getGoalColor(goal, state.goals.indexOf(goal));
+      const goalColorSoft = hexToRgba(goalColorValue, 0.28);
+      const goalColorGlow = hexToRgba(goalColorValue, 0.42);
+      const completedTodayClass = todayMark === 'complete' ? ' completed-today' : '';
+      const interventionHtml = stats.missStreak >= 3 ? `
+            <div class="intervention-prompt">
+              <div><strong>Intervention needed:</strong> ${stats.missStreak} days without completion. Send a reset plan or log an intervention.</div>
+              <button class="btn-danger" onclick="openInterventionGoal('${goal.id}')">Start Intervention</button>
+            </div>
+        ` : '';
+      const celebrationHtml = celebrationGoalId === goal.id ? `
+            <div class="celebration">
+              <div class="confetti-row">
+                <span class="confetti-dot"></span>
+                <span class="confetti-dot"></span>
+                <span class="confetti-dot"></span>
+                <span class="confetti-dot"></span>
+                <span class="confetti-dot"></span>
+              </div>
+              <div class="celebration-title">Goal complete for today</div>
+            </div>
+        ` : '';
+        return `
+          <div class="goal-row">
+          <div class="goal-card${completedTodayClass}" style="--goal-color:${goalColorValue}; --goal-color-soft:${goalColorSoft}; --goal-color-glow:${goalColorGlow};">
+            ${celebrationHtml}
+            ${interventionHtml}
+            <div class="goal-top">
+              <div>
+                <div class="goal-name">${escapeHtml(goal.name)}</div>
+              </div>
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <button class="btn-secondary goal-info-btn" onclick="showGoalDetails('${goal.id}')">ℹ️ Info</button>
+              </div>
+            </div>
+
+            <div class="chips">
+              <span class="chip">Start: ${formatDate(goal.startDate)}</span>
+              <span class="chip">End: ${formatDate(goal.endDate)}</span>
+              <span class="chip">Best Time: ${escapeHtml(goal.bestTime)}</span>
+              <span class="chip">Est: ${goal.estimatedHours || 0}h ${goal.estimatedMinutes || 0}m</span>
+              <span class="chip">Reminder: ${goal.reminderTime ? escapeHtml(goal.reminderTime) : 'None'}</span>
+              <span class="chip">Frequency: ${escapeHtml(goal.frequency)}</span>
+              <span class="chip">Resource: ${goal.goalLink ? 'Saved' : 'None'}</span>
+            </div>
+
+            <div class="goal-actions">
+              <button class="btn-success" onclick="completeGoal('${goal.id}')">Did It</button>
+              <button class="btn-warning" onclick="markGoal('${goal.id}', 'missed')">Missed</button>
+              <button class="btn-warning" onclick="openRedeemGoal('${goal.id}')">Redeem</button>
+              ${goal.goalLink ? `<button class="btn-secondary" onclick="openGoalLink('${goal.id}')">Open Resource</button>` : ''}
+              <button class="btn-primary" onclick="openGoalTimer('${goal.id}')">Timer</button>
+              <button class="btn-secondary" onclick="clearTodayMark('${goal.id}')">Undo</button>
+            </div>
+
+            <div class="goal-footer">
+              <div>
+                Today: <strong style="color:#fff;">${labelForMark(todayMark)}</strong><br>
+                Completed: <strong style="color:#fff;">${stats.completedCount}</strong> / ${stats.requiredCount} &nbsp; | &nbsp;
+                Miss streak: <strong style="color:#fff;">${stats.missStreak}</strong>
+              </div>
+              <div class="tiny-actions">
+                <button class="btn-secondary" onclick="editGoal('${goal.id}')">Edit</button>
+                <button class="btn-danger" onclick="deleteGoal('${goal.id}')">Delete</button>
+              </div>
+            </div>
+          </div>
+          <span class="traffic traffic-outside ${stats.status}" title="${stats.status}"></span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderGoalBoard() {
+      const tiles = [];
+      for (let i = 0; i < 4; i++) {
+        const goal = state.goals[i];
+        if (goal) {
+          const stats = computeStats(goal);
+          const todayMark = goal.history && goal.history[todayString()] ? goal.history[todayString()] : 'unmarked';
+          const goalColorValue = getGoalColor(goal, i);
+          const goalColorSoft = hexToRgba(goalColorValue, 0.28);
+          const goalColorGlow = hexToRgba(goalColorValue, 0.42);
+          const completedTodayClass = todayMark === 'complete' ? ' completed-today' : '';
+          tiles.push(`
+            <button class="goal-tile${completedTodayClass}" type="button" style="--goal-color:${goalColorValue}; --goal-color-soft:${goalColorSoft}; --goal-color-glow:${goalColorGlow};" onclick="openGoalHub('${goal.id}')">
+              <div class="goal-tile-main">
+                <div class="goal-tile-name">${escapeHtml(goal.name)}</div>
+                <div class="goal-tile-meta">${escapeHtml(goal.bestTime)} · ${goal.estimatedHours || 0}h ${goal.estimatedMinutes || 0}m</div>
+                <div class="goal-tile-meta">Today: ${labelForMark(todayMark)}</div>
+              </div>
+              <div class="goal-tile-footer">
+                <div class="goal-tile-status">${stats.rate}% complete</div>
+                <span class="traffic ${stats.status}" title="${stats.status}"></span>
+              </div>
+            </button>
+          `);
+        } else if (state.goals.length < 5 && i === state.goals.length) {
+          tiles.push(`
+            <button class="goal-tile add-tile" type="button" onclick="openGoalCreation()">
+              <div class="goal-tile-plus">+</div>
+              <div class="goal-tile-meta">Add Goal</div>
+            </button>
+          `);
+        } else {
+          tiles.push(`
+            <div class="goal-tile add-tile" aria-hidden="true">
+              <div class="goal-tile-meta">Empty Slot</div>
+            </div>
+          `);
+        }
+      }
+      goalBoard.innerHTML = tiles.join('');
+    }
+
+    function labelForMark(mark) {
+      if (mark === 'complete') return 'Complete';
+      if (mark === 'missed') return 'Missed';
+      return 'Not complete';
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function renderStats() {
+      statGoals.textContent = state.goals.length;
+      const completedToday = state.goals.filter(g => g.history && g.history[todayString()] === 'complete').length;
+      const onTrack = state.goals.filter(g => computeStats(g).status === 'green').length;
+      statComplete.textContent = completedToday;
+      statOnTrack.textContent = onTrack;
+    }
+
+    function render() {
+      renderProgressSquare();
+      renderWeeklySummary();
+      checkInactivity();
+      addGoalBtn.disabled = state.goals.length >= 4;
+    }
+
+    function refreshAppState(showRecoveryPrompt = false) {
+      applyAutomaticMisses();
+      render();
+      if (showRecoveryPrompt) {
+        maybeShowAutomaticRecoveryPrompt();
+      }
+      lastRefreshTickKey = getRefreshTickKey();
+    }
+
+    function maybeRefreshForElapsedTime(showRecoveryPrompt = false) {
+      const currentTickKey = getRefreshTickKey();
+      if (currentTickKey === lastRefreshTickKey) return;
+      refreshAppState(showRecoveryPrompt);
+    }
+
+    function setWizardStep(step) {
+      goalWizardStep1.classList.toggle('step-hidden', step !== 1);
+      goalWizardStep2.classList.toggle('step-hidden', step !== 2);
+      wizardBackBtn.classList.toggle('module-hidden', step === 1);
+      wizardNextBtn.classList.toggle('module-hidden', step !== 1);
+      addGoalBtn.classList.toggle('module-hidden', step !== 2);
+      wizardProgress.textContent = `Step ${step} of 2`;
+    }
+
+    function validateStep1() {
+      const name = goalName.value.trim();
+      if (!name) {
+        alert('Please enter a goal name before moving on.');
+        goalName.focus();
+        return false;
+      }
+      return true;
+    }
+
+    function nextWizardStep() {
+      if (!validateStep1()) return;
+      setWizardStep(2);
+    }
+
+    function previousWizardStep() {
+      setWizardStep(1);
+    }
+
+    function showApp() {
+      if (appContent) appContent.classList.remove('module-hidden');
+    }
+
+    function openGoalCreation() {
+      showApp();
+      setWizardStep(1);
+      goalCreationModal.classList.add('show');
+    }
+
+    function closeGoalCreation() {
+      goalCreationModal.classList.remove('show');
+    }
+
+    function resetForm() {
+      goalName.value = '';
+      startDate.value = todayString();
+      endDate.value = '';
+      performTime.value = 'Morning';
+      reminderTime.value = '';
+      emailReminder.value = '';
+      goalLink.value = '';
+      estimatedHours.value = '';
+      estimatedMinutes.value = '';
+      goalFrequency.value = 'Daily';
+      goalColor.value = DEFAULT_GOAL_COLORS[state.goals.length % DEFAULT_GOAL_COLORS.length];
+      goalIcon.value = '';
+      priorityLevel.value = '5';
+      if (randomGoalNote) {
+        randomGoalNote.textContent = 'Generate a starter idea for writing, workouts, cleaning, and similar light routines.';
+      }
+      syncGoalIconPicker();
+      syncPriorityModeUi();
+      setWizardStep(1);
+    }
+
+    function addGoal() {
+      if (state.goals.length >= 4) {
+        alert('You can only have up to 4 active goals at once.');
+        return;
+      }
+
+      const name = goalName.value.trim();
+      const start = startDate.value;
+      const end = endDate.value;
+      const bestTime = performTime.value;
+      const remind = reminderTime.value;
+      const email = emailReminder.value.trim();
+      const link = normalizeUrl(goalLink.value);
+      const hours = Number(estimatedHours.value || 0);
+      const minutes = Number(estimatedMinutes.value || 0);
+      const frequency = goalFrequency.value;
+      const color = isValidHexColor(goalColor.value) ? goalColor.value : DEFAULT_GOAL_COLORS[state.goals.length % DEFAULT_GOAL_COLORS.length];
+      const icon = getGoalIconData(goalIcon.value) ? goalIcon.value : '';
+      const priority = ensureSettings().priorityMode ? Number(priorityLevel.value || 5) : null;
+
+      if (!name) {
+        alert('Please enter a goal name.');
+        setWizardStep(1);
+        return;
+      }
+
+      if (!start || !end) {
+        alert('Please choose both a beginning date and an end date.');
+        setWizardStep(2);
+        return;
+      }
+
+      if (new Date(end) < new Date(start)) {
+        alert('The end date cannot be earlier than the start date. Time travel is currently out of scope.');
+        setWizardStep(2);
+        return;
+      }
+
+      if (hours === 0 && minutes === 0) {
+        alert('Please enter an estimated duration in hours or minutes.');
+        setWizardStep(2);
+        return;
+      }
+
+      if (ensureSettings().priorityMode && isPriorityTaken(priority)) {
+        alert(`Priority ${priority} is already in use. Each goal needs a distinct priority number.`);
+        setWizardStep(1);
+        priorityLevel.focus();
+        return;
+      }
+
+      const goal = {
+        id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+        name,
+        startDate: start,
+        endDate: end,
+        bestTime,
+        reminderTime: remind,
+        email,
+        goalLink: link,
+        frequency,
+        color,
+        icon,
+        priority,
+        estimatedHours: hours,
+        estimatedMinutes: minutes,
+        history: {},
+        timeHistory: {},
+        redemptionHistory: {},
+        interventionHistory: {},
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      state.goals.push(goal);
+      applyAutomaticMisses();
+      saveState();
+      render();
+      resetForm();
+      closeGoalCreation();
+    }
+
+    function seedExample() {
+      state.goals = [
+        {
+          id: 'g1',
+          name: 'Walk 20 minutes',
+          startDate: todayString(),
+          endDate: futureDate(14),
+          bestTime: 'Morning',
+          reminderTime: '08:00',
+          email: '',
+          goalLink: '',
+          estimatedHours: 0,
+          estimatedMinutes: 20,
+          frequency: 'Daily',
+          color: DEFAULT_GOAL_COLORS[0],
+          icon: 'heart',
+          priority: 8,
+          history: {
+            [todayString()]: 'complete'
+          },
+          timeHistory: {
+            [todayString()]: 1200
+          },
+          redemptionHistory: {},
+          interventionHistory: {},
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        },
+        {
+          id: 'g2',
+          name: 'Work on game design for 30 minutes',
+          startDate: todayString(),
+          endDate: futureDate(21),
+          bestTime: 'Evening',
+          reminderTime: '19:00',
+          email: '',
+          goalLink: '',
+          estimatedHours: 0,
+          estimatedMinutes: 30,
+          frequency: 'Weekdays',
+          color: DEFAULT_GOAL_COLORS[1],
+          icon: 'dumbbell',
+          priority: 6,
+          history: {},
+          timeHistory: {},
+          redemptionHistory: {},
+          interventionHistory: {},
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+      ];
+      state.recoveryPromptHistory = {};
+      state.achievements = { unlocked: {} };
+      applyAutomaticMisses();
+      saveState();
+      render();
+    }
+
+    function futureDate(daysAhead) {
+      const d = new Date();
+      d.setDate(d.getDate() + daysAhead);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
+    function getWeeklySummarySeen() {
+      try {
+        return JSON.parse(localStorage.getItem(WEEKLY_SUMMARY_KEY)) || {};
+      } catch (err) {
+        return {};
+      }
+    }
+
+    function saveWeeklySummarySeen(seen) {
+      localStorage.setItem(WEEKLY_SUMMARY_KEY, JSON.stringify(seen));
+    }
+
+    function getGoalWeeklySummary(goal) {
+      const allDates = buildDateRange(goal.startDate, goal.endDate);
+      const pastDates = allDates.filter(date => date <= todayString());
+      if (pastDates.length < 7) return null;
+
+      const endIndex = pastDates.length - 1;
+      const weekNumber = Math.floor((endIndex + 1) / 7);
+      if (weekNumber < 1) return null;
+
+      const startIndex = (weekNumber - 1) * 7;
+      const weekDates = pastDates.slice(startIndex, startIndex + 7);
+      if (weekDates.length < 7) return null;
+
+      const history = ensureHistory(goal);
+      const redemptionHistory = ensureRedemptionHistory(goal);
+      const timeHistory = ensureTimeHistory(goal);
+      if (isOneShotGoal(goal)) {
+        const completionDate = getOneShotCompletionDate(goal, weekDates);
+        const windowTouched = weekDates.some(date => date >= goal.startDate && date <= goal.endDate);
+        if (!windowTouched) return null;
+        const missed = weekDates.includes(goal.endDate) && !completionDate && todayString() > goal.endDate ? 1 : 0;
+        const redeemed = weekDates.filter(date => redemptionHistory[date]).length;
+        const totalSeconds = weekDates.reduce((total, date) => total + Number(timeHistory[date] || 0), 0);
+        return {
+          key: `${goal.id}-W${weekNumber}`,
+          goal,
+          weekNumber,
+          startDate: weekDates[0],
+          endDate: weekDates[weekDates.length - 1],
+          requiredCount: 1,
+          completed: completionDate ? 1 : 0,
+          missed,
+          redeemed,
+          totalSeconds,
+          rate: completionDate ? 100 : 0
+        };
+      }
+      const requiredDates = weekDates.filter(date => isRequiredDay(goal, date));
+      const completed = requiredDates.filter(date => history[date] === 'complete').length;
+      const missed = requiredDates.filter(date => history[date] === 'missed').length;
+      const redeemed = requiredDates.filter(date => redemptionHistory[date]).length;
+      const totalSeconds = weekDates.reduce((total, date) => total + Number(timeHistory[date] || 0), 0);
+      const rate = requiredDates.length ? Math.round((completed / requiredDates.length) * 100) : 0;
+
+      return {
+        key: `${goal.id}-W${weekNumber}`,
+        goal,
+        weekNumber,
+        startDate: weekDates[0],
+        endDate: weekDates[weekDates.length - 1],
+        requiredCount: requiredDates.length,
+        completed,
+        missed,
+        redeemed,
+        totalSeconds,
+        rate
+      };
+    }
+
+    function renderWeeklySummary() {
+      const summaries = state.goals
+        .map(getGoalWeeklySummary)
+        .filter(Boolean);
+
+      const seen = getWeeklySummarySeen();
+      const unseen = summaries.filter(summary => !seen[summary.key]);
+
+      if (!unseen.length) {
+        weeklySummaryContainer.innerHTML = '';
+        return;
+      }
+
+      weeklySummaryContainer.innerHTML = `
+        <div class="weekly-summary">
+          <div class="weekly-summary-head">
+            <div>
+              <div class="weekly-summary-title">Weekly Summary Ready</div>
+              <div class="muted">A quiet check-in after a full week of goal data.</div>
+            </div>
+            <button class="btn-secondary" onclick="dismissWeeklySummary()">Dismiss</button>
+          </div>
+          <div class="weekly-summary-grid">
+            ${unseen.map(summary => `
+              <div class="weekly-summary-goal">
+                <strong>${escapeHtml(summary.goal.name)}</strong>
+                <div class="muted">Week ${summary.weekNumber}: ${formatDate(summary.startDate)} to ${formatDate(summary.endDate)}</div>
+                <div class="weekly-summary-stats">
+                  <div><strong>${summary.rate}%</strong>Complete</div>
+                  <div><strong>${summary.completed}/${summary.requiredCount}</strong>Done</div>
+                  <div><strong>${summary.missed}</strong>Missed</div>
+                  <div><strong>${formatDuration(summary.totalSeconds)}</strong>Time</div>
+                  <div><strong>${summary.redeemed}</strong>Redeemed</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function dismissWeeklySummary() {
+      const seen = getWeeklySummarySeen();
+      state.goals
+        .map(getGoalWeeklySummary)
+        .filter(Boolean)
+        .forEach(summary => {
+          seen[summary.key] = new Date().toISOString();
+        });
+      saveWeeklySummarySeen(seen);
+      renderWeeklySummary();
+    }
+
+    if (openLegendBtn) openLegendBtn.addEventListener('click', () => legendModal.classList.add('show'));
+    if (closeLegendBtn) closeLegendBtn.addEventListener('click', () => legendModal.classList.remove('show'));
+    legendModal.addEventListener('click', (e) => {
+      if (e.target === legendModal) legendModal.classList.remove('show');
+    });
+    if (closeAchievementBtn) closeAchievementBtn.addEventListener('click', closeAchievementModal);
+    if (achievementNextBtn) achievementNextBtn.addEventListener('click', closeAchievementModal);
+    if (achievementModal) {
+      achievementModal.addEventListener('click', (e) => {
+        if (e.target === achievementModal) closeAchievementModal();
+      });
+    }
+    if (completionReturnBtn) completionReturnBtn.addEventListener('click', returnFromCompletionCelebration);
+    if (completionModal) {
+      completionModal.addEventListener('click', (e) => {
+        if (e.target === completionModal && completionReturnBtn && completionReturnBtn.classList.contains('show')) {
+          returnFromCompletionCelebration();
+        }
+      });
+    }
+    if (installAppBtn) {
+      installAppBtn.addEventListener('click', async () => {
+        playSound('select');
+        if (!deferredInstallPrompt) return;
+        deferredInstallPrompt.prompt();
+        await deferredInstallPrompt.userChoice.catch(() => {});
+        deferredInstallPrompt = null;
+        installAppBtn.classList.add('module-hidden');
+      });
+    }
+
+    closeDetailsBtn.addEventListener('click', closeGoalDetails);
+    goalDetailsModal.addEventListener('click', (e) => {
+      if (e.target === goalDetailsModal) closeGoalDetails();
+    });
+    detailsPriorityModeBtn.addEventListener('click', () => {
+      const settings = ensureSettings();
+      settings.priorityMode = !settings.priorityMode;
+      saveState(false);
+      syncPriorityModeUi();
+      if (currentDetailGoalId) showGoalDetails(currentDetailGoalId);
+    });
+
+    progressSquareContainer.addEventListener('click', handleProgressSquareClick);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        maybeRefreshForElapsedTime(true);
+      }
+    });
+    window.addEventListener('focus', () => {
+      maybeRefreshForElapsedTime(true);
+    });
+    window.addEventListener('pageshow', () => {
+      maybeRefreshForElapsedTime(true);
+    });
+    setInterval(() => {
+      maybeRefreshForElapsedTime(true);
+    }, 60000);
+    closeTrackingBtn.addEventListener('click', closeTrackingModal);
+    trackingModal.addEventListener('click', (e) => {
+      if (e.target === trackingModal) closeTrackingModal();
+    });
+    closeGoalDashboardBtn.addEventListener('click', closeGoalDashboard);
+    goalDashboardModal.addEventListener('click', (e) => {
+      if (e.target === goalDashboardModal) closeGoalDashboard();
+    });
+    closeTimerBtn.addEventListener('click', closeTimer);
+    timerModal.addEventListener('click', (e) => {
+      if (e.target === timerModal) closeTimer();
+    });
+    timerStartPauseBtn.addEventListener('click', toggleTimer);
+    timerResetBtn.addEventListener('click', resetTimer);
+    timerCompleteBtn.addEventListener('click', completeTimerGoal);
+    closeRedeemBtn.addEventListener('click', closeRedeem);
+    redeemModal.addEventListener('click', (e) => {
+      if (e.target === redeemModal) closeRedeem();
+    });
+    redeemActionBtn.addEventListener('click', startRecoveryAction);
+    closeInterventionBtn.addEventListener('click', closeIntervention);
+    interventionModal.addEventListener('click', (e) => {
+      if (e.target === interventionModal) closeIntervention();
+    });
+    sendInterventionBtn.addEventListener('click', sendInterventionEmail);
+    logInterventionBtn.addEventListener('click', () => {
+      logIntervention();
+      closeIntervention();
+    });
+
+    if (typeof openGoalCreationBtn !== 'undefined' && openGoalCreationBtn) openGoalCreationBtn.addEventListener('click', openGoalCreation);
+    closeGoalCreationBtn.addEventListener('click', closeGoalCreation);
+    goalCreationModal.addEventListener('click', (e) => {
+      if (e.target === goalCreationModal) closeGoalCreation();
+    });
+    wizardNextBtn.addEventListener('click', nextWizardStep);
+    wizardBackBtn.addEventListener('click', previousWizardStep);
+    addGoalBtn.addEventListener('click', addGoal);
+    if (randomGoalBtn) randomGoalBtn.addEventListener('click', applyRandomGoalTemplate);
+    goalIconPicker.addEventListener('click', (event) => {
+      const choice = event.target.closest('[data-icon-value]');
+      if (!choice) return;
+      playSound('select');
+      goalIcon.value = choice.dataset.iconValue || '';
+      syncGoalIconPicker();
+    });
+    if (seedExampleBtn) seedExampleBtn.addEventListener('click', seedExample);
+    closeGoalHubBtn.addEventListener('click', closeGoalHub);
+    goalHubModal.addEventListener('click', (e) => {
+      if (e.target === goalHubModal) closeGoalHub();
+    });
+    goalHubCompleteBtn.addEventListener('click', () => {
+      if (currentHubGoalId) {
+        const goal = state.goals.find(g => g.id === currentHubGoalId);
+        const todayMark = goal && goal.history && goal.history[todayString()] ? goal.history[todayString()] : 'unmarked';
+        if (todayMark === 'complete') {
+          clearTodayMark(currentHubGoalId);
+        } else {
+          completeGoal(currentHubGoalId);
+        }
+        openGoalHub(currentHubGoalId);
+      }
+    });
+    goalHubTimerBtn.addEventListener('click', () => {
+      playSound('select');
+      if (currentHubGoalId) openGoalTimer(currentHubGoalId);
+      closeGoalHub();
+    });
+    goalHubTrackBtn.addEventListener('click', () => {
+      playSound('select');
+      if (currentHubGoalId) openGoalDashboard(currentHubGoalId);
+      closeGoalHub();
+    });
+    if (typeof globalInspireBtn !== 'undefined' && globalInspireBtn) globalInspireBtn.addEventListener('click', openInspiration);
+
+    startDate.value = todayString();
+    renderGoalIconPicker();
+    syncGoalIconPicker();
+    syncPriorityModeUi();
+    setupInstallPrompt();
+    registerServiceWorker();
+
+    loadState();
+    refreshAppState(true);
+    localStorage.setItem(LAST_ACCESS_KEY, new Date().toISOString());
+    setWizardStep(1);
+
+    window.markGoal = markGoal;
+    window.completeGoal = completeGoal;
+    window.clearTodayMark = clearTodayMark;
+    window.deleteGoal = deleteGoal;
+    window.editGoal = editGoal;
+    window.showGoalDetails = showGoalDetails;
+    window.openGoalDetailsFromDashboard = openGoalDetailsFromDashboard;
+    window.openGoalDashboard = openGoalDashboard;
+    window.openGoalTimer = openGoalTimer;
+    window.openInterventionGoal = openInterventionGoal;
+    window.openInspiration = openInspiration;
+    window.openGoalLink = openGoalLink;
+    window.dismissWeeklySummary = dismissWeeklySummary;
+    window.openGoalHub = openGoalHub;
+    window.openGoalCreation = openGoalCreation;
+    window.archiveGoal = archiveGoal;
+    window.deleteArchivedGoal = deleteArchivedGoal;
+    window.confirmGoalConclusion = confirmGoalConclusion;
+  </script>
+</body>
+</html>

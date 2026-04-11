@@ -1,0 +1,19 @@
+{
+  "name": "Goal Tracker",
+  "short_name": "Goal Tracker",
+  "description": "A mobile-friendly goal tracker with timers, milestones, archives, and installable home screen support.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#101418",
+  "theme_color": "#101418",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
