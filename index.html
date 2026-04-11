@@ -125,6 +125,45 @@
       line-height: 1.4;
     }
 
+    .reminder-toast {
+      position: fixed;
+      left: 12px;
+      right: 12px;
+      bottom: max(12px, env(safe-area-inset-bottom));
+      z-index: 80;
+      display: none;
+      pointer-events: none;
+    }
+
+    .reminder-toast.show {
+      display: block;
+      pointer-events: auto;
+    }
+
+    .reminder-toast-card {
+      background: rgba(18, 26, 34, 0.98);
+      border: 1px solid rgba(108, 196, 255, 0.38);
+      border-radius: 14px;
+      box-shadow: 0 18px 38px rgba(0,0,0,0.34);
+      padding: 14px;
+    }
+
+    .reminder-toast-title {
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .reminder-toast-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .reminder-toast-actions button {
+      flex: 1 1 120px;
+    }
+
     .weekly-summary {
       display: grid;
       gap: 12px;
@@ -795,7 +834,7 @@
       border: 0;
       box-shadow: none;
       margin-bottom: 0;
-      overflow: hidden;
+      overflow: visible;
     }
 
     .star-rating {
@@ -803,6 +842,7 @@
       display: grid;
       place-items: center;
       gap: 8px;
+      overflow: visible;
     }
 
     .progress-square {
@@ -1838,6 +1878,21 @@
         width: min(99vw, 470px);
       }
     }
+
+    @media (hover: none) and (pointer: coarse) {
+      .progress-segment:hover,
+      .progress-segment:focus-visible {
+        transform: none;
+        filter: none;
+      }
+    }
+
+    @media (orientation: portrait) and (max-width: 900px) {
+      .progress-square,
+      .empty-goal-state {
+        width: min(150vw, 74dvh, 620px);
+      }
+    }
   </style>
 </head>
 <body>
@@ -1859,6 +1914,7 @@
       <div id="weeklySummaryContainer" class="weekly-summary-slot"></div>
     </section>
   </div>
+  <div id="reminderToast" class="reminder-toast"></div>
 
   <div class="modal" id="goalCreationModal">
     <div class="modal-panel">
@@ -2154,6 +2210,7 @@
     const LAST_ACCESS_KEY = 'goal_tracker_last_access_v1';
     const INSPIRATION_LINK_KEY = 'goal_tracker_inspiration_link_v1';
     const WEEKLY_SUMMARY_KEY = 'goal_tracker_weekly_summary_seen_v1';
+    const REMINDER_LOG_KEY = 'goal_tracker_reminder_log_v1';
     const ACHIEVEMENT_STREAK_MILESTONES = [5];
     const ACHIEVEMENT_COMPLETION_MILESTONES = [10, 25, 50, 75, 100, 150, 200, 250, 300, 500, 750, 1000];
     const ACHIEVEMENT_HOUR_MILESTONES = [5, 10, 15, 20, 25, 50, 75, 100];
@@ -2254,6 +2311,7 @@
     const emptyGoalLaunch = document.getElementById('emptyGoalLaunch');
     const inactivityBanner = document.getElementById('inactivityBanner');
     const saveBanner = document.getElementById('saveBanner');
+    const reminderToast = document.getElementById('reminderToast');
     const weeklySummaryContainer = document.getElementById('weeklySummaryContainer');
     const installAppBtn = document.getElementById('installAppBtn');
     const legendModal = document.getElementById('legendModal');
@@ -2739,6 +2797,128 @@
       if (!value) return '';
       if (/^https?:\/\//i.test(value)) return value;
       return `https://${value}`;
+    }
+
+    function parseTimeToMinutes(value) {
+      if (!value || !/^\d{2}:\d{2}$/.test(value)) return null;
+      const [hours, minutes] = value.split(':').map(Number);
+      if (!Number.isFinite(hours) || !Number.isFinite(minutes)) return null;
+      return (hours * 60) + minutes;
+    }
+
+    function getReminderLog() {
+      try {
+        return JSON.parse(localStorage.getItem(REMINDER_LOG_KEY)) || {};
+      } catch (err) {
+        return {};
+      }
+    }
+
+    function saveReminderLog(log) {
+      localStorage.setItem(REMINDER_LOG_KEY, JSON.stringify(log));
+    }
+
+    function getReminderMessage(goal) {
+      const bestTime = goal.bestTime ? ` Planned for ${goal.bestTime}.` : '';
+      return `Reminder: ${goal.name}.${bestTime}`;
+    }
+
+    function openGoalReminderEmail(id) {
+      const goal = state.goals.find(g => g.id === id);
+      if (!goal || !goal.email) return;
+      const subject = `Goal reminder: ${goal.name}`;
+      const body = [
+        `Reminder for: ${goal.name}`,
+        goal.reminderTime ? `Reminder time: ${goal.reminderTime}` : '',
+        goal.bestTime ? `Best time: ${goal.bestTime}` : '',
+        goal.goalLink ? `Resource: ${goal.goalLink}` : '',
+        '',
+        'Open the app and log progress for today.'
+      ].filter(Boolean).join('\n');
+      window.location.href = `mailto:${goal.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    }
+
+    function hideReminderToast() {
+      if (!reminderToast) return;
+      reminderToast.classList.remove('show');
+      reminderToast.innerHTML = '';
+    }
+
+    function showReminderToast(goal) {
+      if (!reminderToast) return;
+      reminderToast.innerHTML = `
+        <div class="reminder-toast-card">
+          <div class="reminder-toast-title">${escapeHtml(goal.name)}</div>
+          <div class="muted">${escapeHtml(getReminderMessage(goal))}</div>
+          <div class="reminder-toast-actions">
+            <button class="btn-primary" type="button" data-reminder-action="open-goal" data-goal-id="${goal.id}">Open Goal</button>
+            ${goal.email ? `<button class="btn-secondary" type="button" data-reminder-action="email" data-goal-id="${goal.id}">Email</button>` : ''}
+            <button class="btn-secondary" type="button" data-reminder-action="dismiss">Dismiss</button>
+          </div>
+        </div>
+      `;
+      reminderToast.classList.add('show');
+    }
+
+    function showBrowserReminder(goal) {
+      if (!('Notification' in window)) return;
+      if (Notification.permission !== 'granted') return;
+      try {
+        const notification = new Notification(goal.name, {
+          body: getReminderMessage(goal),
+          icon: 'app-icon.svg',
+          badge: 'app-icon.svg',
+          tag: `goal-reminder-${goal.id}-${todayString()}`
+        });
+        notification.onclick = () => {
+          window.focus();
+          openGoalHub(goal.id);
+          notification.close();
+        };
+      } catch (err) {
+        console.warn('Reminder notification failed', err);
+      }
+    }
+
+    async function ensureReminderPermission() {
+      if (!('Notification' in window)) return;
+      if (Notification.permission !== 'default') return;
+      try {
+        await Notification.requestPermission();
+      } catch (err) {
+        console.warn('Notification permission request failed', err);
+      }
+    }
+
+    function maybeTriggerReminders() {
+      const now = new Date();
+      const today = todayString();
+      const currentMinutes = (now.getHours() * 60) + now.getMinutes();
+      const reminderLog = getReminderLog();
+      let changed = false;
+
+      state.goals.forEach(goal => {
+        if (!goal || goal.concludedAt) return;
+        if (!goal.reminderTime) return;
+        if (today < goal.startDate || today > goal.endDate) return;
+        if (!isRequiredDay(goal, today)) return;
+
+        const history = ensureHistory(goal);
+        if (history[today] === 'complete') return;
+
+        const reminderMinutes = parseTimeToMinutes(goal.reminderTime);
+        if (reminderMinutes === null || currentMinutes < reminderMinutes) return;
+
+        const reminderKey = `${goal.id}:${today}`;
+        if (reminderLog[reminderKey]) return;
+
+        reminderLog[reminderKey] = new Date().toISOString();
+        changed = true;
+        showReminderToast(goal);
+        showBrowserReminder(goal);
+      });
+
+      if (changed) saveReminderLog(reminderLog);
     }
 
     function playSound(kind) {
@@ -4037,18 +4217,32 @@
     function getSquareFragmentNumberFromPoint(event) {
       const square = progressSquareContainer && progressSquareContainer.querySelector('.progress-square');
       if (!square) return null;
-      if (typeof event.clientX !== 'number' || typeof event.clientY !== 'number') return null;
+      const point = getEventClientPoint(event);
+      if (!point) return null;
 
       const rect = square.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
-      const dx = event.clientX - centerX;
-      const dy = event.clientY - centerY;
+      const dx = point.clientX - centerX;
+      const dy = point.clientY - centerY;
 
       if (Math.abs(dx) > Math.abs(dy)) {
         return dx >= 0 ? 2 : 4;
       }
       return dy >= 0 ? 3 : 1;
+    }
+
+    function getEventClientPoint(event) {
+      if (event && typeof event.clientX === 'number' && typeof event.clientY === 'number') {
+        return { clientX: event.clientX, clientY: event.clientY };
+      }
+      const touch = event && event.changedTouches && event.changedTouches[0]
+        ? event.changedTouches[0]
+        : event && event.touches && event.touches[0]
+          ? event.touches[0]
+          : null;
+      if (!touch) return null;
+      return { clientX: touch.clientX, clientY: touch.clientY };
     }
 
     function getProgressSquareActionTarget(event) {
@@ -4240,6 +4434,7 @@
     function refreshAppState(showRecoveryPrompt = false) {
       applyAutomaticMisses();
       render();
+      maybeTriggerReminders();
       if (showRecoveryPrompt) {
         maybeShowAutomaticRecoveryPrompt();
       }
@@ -4392,8 +4587,12 @@
 
       state.goals.push(goal);
       applyAutomaticMisses();
-      saveState();
+      saveState(false);
       render();
+      maybeTriggerReminders();
+      if (remind) {
+        ensureReminderPermission();
+      }
       resetForm();
       closeGoalCreation();
     }
@@ -4633,7 +4832,7 @@
     });
 
     progressSquareContainer.addEventListener('click', (event) => {
-      if (Date.now() - lastSquareTouchTime < 500) return;
+      if (Date.now() - lastSquareTouchTime < 300) return;
       handleProgressSquareClick(event);
     });
     progressSquareContainer.addEventListener('pointerup', (event) => {
@@ -4642,6 +4841,11 @@
       event.preventDefault();
       handleProgressSquareClick(event);
     });
+    progressSquareContainer.addEventListener('touchend', (event) => {
+      lastSquareTouchTime = Date.now();
+      event.preventDefault();
+      handleProgressSquareClick(event);
+    }, { passive: false });
     progressSquareContainer.addEventListener('keydown', (event) => {
       const actionTarget = event.target.closest('[data-fragment-action]');
       if (!actionTarget) return;
@@ -4655,6 +4859,27 @@
         if (!target) return;
         playSound('select');
         openGoalCreation();
+      });
+    }
+    if (reminderToast) {
+      reminderToast.addEventListener('click', (event) => {
+        const actionTarget = event.target.closest('[data-reminder-action]');
+        if (!actionTarget) return;
+        const action = actionTarget.dataset.reminderAction;
+        const goalId = actionTarget.dataset.goalId;
+        playSound('select');
+        if (action === 'open-goal' && goalId) {
+          hideReminderToast();
+          openGoalHub(goalId);
+          return;
+        }
+        if (action === 'email' && goalId) {
+          openGoalReminderEmail(goalId);
+          return;
+        }
+        if (action === 'dismiss') {
+          hideReminderToast();
+        }
       });
     }
     document.addEventListener('visibilitychange', () => {
