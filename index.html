@@ -215,6 +215,37 @@
       min-width: 180px;
     }
 
+    .empty-goal-launch {
+      margin-top: 14px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .empty-goal-launch:empty {
+      display: none;
+    }
+
+    .empty-goal-btn {
+      width: 76px;
+      height: 76px;
+      min-height: 76px;
+      border-radius: 50%;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      font-size: 2.4rem;
+      line-height: 1;
+      background: #2a3642;
+      color: var(--text);
+      border: 1px solid #394959;
+      box-shadow: 0 12px 28px rgba(0,0,0,0.22);
+    }
+
+    .empty-goal-btn:hover,
+    .empty-goal-btn:active {
+      transform: none;
+    }
+
     .module-hidden {
       display: none;
     }
@@ -767,6 +798,39 @@
       margin: 0 auto;
       transform: rotate(45deg);
       filter: drop-shadow(0 24px 34px rgba(0, 0, 0, 0.34));
+    }
+
+    .progress-square.is-empty-state {
+      transform: none;
+      filter: none;
+      display: grid;
+      place-items: center;
+      min-height: min(72vw, 270px);
+    }
+
+    .empty-goal-state {
+      width: min(72vw, 270px);
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      position: relative;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+
+    .empty-goal-state::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 28px;
+      background: rgba(255,255,255,0.02);
+      pointer-events: none;
+    }
+
+    .dashboard-install-row {
+      display: flex;
+      justify-content: center;
+      margin: 0 0 14px;
     }
 
     .progress-segment {
@@ -1762,10 +1826,8 @@
       <div id="progressSquareContainer" class="star-rating">
         <!-- Main navigation square will be inserted here -->
       </div>
+      <div id="emptyGoalLaunch" class="empty-goal-launch"></div>
       <div id="weeklySummaryContainer" class="weekly-summary-slot"></div>
-      <div class="install-app-wrap">
-        <button class="btn-secondary module-hidden install-app-btn" id="installAppBtn" type="button">Install App</button>
-      </div>
     </section>
   </div>
 
@@ -1949,6 +2011,9 @@
       <div class="modal-head">
         <h3 id="goalDashboardTitle">Goal Dashboard</h3>
         <button class="modal-close" id="closeGoalDashboardBtn">Close</button>
+      </div>
+      <div class="dashboard-install-row">
+        <button class="btn-secondary module-hidden install-app-btn" id="installAppBtn" type="button">Install App</button>
       </div>
       <div id="goalDashboardContent"></div>
     </div>
@@ -2156,6 +2221,7 @@
     const goalCreationModal = document.getElementById('goalCreationModal');
     const closeGoalCreationBtn = document.getElementById('closeGoalCreationBtn');
     const progressSquareContainer = document.getElementById('progressSquareContainer');
+    const emptyGoalLaunch = document.getElementById('emptyGoalLaunch');
     const inactivityBanner = document.getElementById('inactivityBanner');
     const saveBanner = document.getElementById('saveBanner');
     const weeklySummaryContainer = document.getElementById('weeklySummaryContainer');
@@ -3843,6 +3909,23 @@
     function renderProgressSquare() {
       const container = progressSquareContainer;
       if (!container) return;
+      container.dataset.emptyState = state.goals.length ? 'false' : 'true';
+
+      if (!state.goals.length) {
+        container.innerHTML = `
+          <div
+            class="empty-goal-state"
+            data-fragment-action="add"
+            role="button"
+            tabindex="0"
+            aria-label="Add goal"
+            title="Add goal"
+          >
+            <span class="empty-goal-btn" id="emptyGoalBtn" aria-hidden="true">+</span>
+          </div>
+        `;
+        return;
+      }
 
       const goalsBySlot = getSquareGoalsBySlot();
       const priorityModeEnabled = ensureSettings().priorityMode;
@@ -3923,7 +4006,13 @@
 
     function handleProgressSquareClick(event) {
       const actionTarget = event.target.closest('[data-fragment-action]');
-      if (!actionTarget) return;
+      if (!actionTarget) {
+        if (!state.goals.length) {
+          playSound('select');
+          openGoalCreation();
+        }
+        return;
+      }
       playSound('select');
       const action = actionTarget.dataset.fragmentAction;
       if (action === 'add') {
@@ -4084,6 +4173,9 @@
 
     function render() {
       renderProgressSquare();
+      if (emptyGoalLaunch) {
+        emptyGoalLaunch.innerHTML = '';
+      }
       renderWeeklySummary();
       checkInactivity();
       addGoalBtn.disabled = state.goals.length >= 4;
@@ -4485,6 +4577,25 @@
     });
 
     progressSquareContainer.addEventListener('click', handleProgressSquareClick);
+    progressSquareContainer.addEventListener('pointerup', (event) => {
+      if (event.pointerType === 'mouse') return;
+      handleProgressSquareClick(event);
+    });
+    progressSquareContainer.addEventListener('keydown', (event) => {
+      const actionTarget = event.target.closest('[data-fragment-action]');
+      if (!actionTarget) return;
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      handleProgressSquareClick(event);
+    });
+    if (emptyGoalLaunch) {
+      emptyGoalLaunch.addEventListener('click', (event) => {
+        const target = event.target.closest('.empty-goal-btn');
+        if (!target) return;
+        playSound('select');
+        openGoalCreation();
+      });
+    }
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') {
         maybeRefreshForElapsedTime(true);
