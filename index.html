@@ -44,13 +44,8 @@
       overflow: hidden;
     }
 
-    .app {
-      width: 100%;
-      max-width: 520px;
-      margin: 0 auto;
-      min-height: 100dvh;
-      padding: 4px 6px 8px;
-      display: flex;
+    .app.disable-interactions {
+      pointer-events: none;
     }
 
     #appContent {
@@ -3748,9 +3743,22 @@
       currentDetailGoalId = null;
     }
 
+    function temporarilyDisableInteractions(duration = 400) {
+      const app = document.querySelector('.app');
+      if (!app) return;
+      
+      app.classList.add('disable-interactions');
+      setTimeout(() => {
+        app.classList.remove('disable-interactions');
+      }, duration);
+    }
+
     function openGoalHub(id) {
       const goal = state.goals.find(g => g.id === id);
       if (!goal) return;
+      
+      temporarilyDisableInteractions();
+      
       const stats = computeStats(goal);
       const todayMark = goal.history && goal.history[todayString()] ? goal.history[todayString()] : 'unmarked';
       const recoveryToday = ensureRedemptionHistory(goal)[todayString()];
@@ -4848,26 +4856,27 @@
       if (currentDetailGoalId) showGoalDetails(currentDetailGoalId);
     });
 
-    let touchHandled = false;
+    let lastClickTime = 0;
     
     progressSquareContainer.addEventListener('click', (event) => {
-      if (touchHandled && Date.now() - lastSquareTouchTime < 500) {
-        touchHandled = false;
-        return;
-      }
+      const now = Date.now();
+      if (now - lastClickTime < 200) return; // Prevent rapid clicks
+      lastClickTime = now;
       handleProgressSquareClick(event);
     });
     
     progressSquareContainer.addEventListener('pointerup', (event) => {
       if (event.pointerType === 'mouse') return;
-      lastSquareTouchTime = Date.now();
-      touchHandled = true;
+      const now = Date.now();
+      if (now - lastClickTime < 200) return;
+      lastClickTime = now;
       handleProgressSquareClick(event);
     });
     
     progressSquareContainer.addEventListener('touchend', (event) => {
-      lastSquareTouchTime = Date.now();
-      touchHandled = true;
+      const now = Date.now();
+      if (now - lastClickTime < 200) return;
+      lastClickTime = now;
       handleProgressSquareClick(event);
     }, { passive: false });
     progressSquareContainer.addEventListener('keydown', (event) => {
