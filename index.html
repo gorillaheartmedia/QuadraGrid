@@ -903,6 +903,8 @@
       overflow: visible;
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
+      pointer-events: auto;
+      cursor: pointer;
     }
 
     .progress-segment:hover,
@@ -4846,19 +4848,26 @@
       if (currentDetailGoalId) showGoalDetails(currentDetailGoalId);
     });
 
+    let touchHandled = false;
+    
     progressSquareContainer.addEventListener('click', (event) => {
-      if (Date.now() - lastSquareTouchTime < 300) return;
+      if (touchHandled && Date.now() - lastSquareTouchTime < 500) {
+        touchHandled = false;
+        return;
+      }
       handleProgressSquareClick(event);
     });
+    
     progressSquareContainer.addEventListener('pointerup', (event) => {
       if (event.pointerType === 'mouse') return;
       lastSquareTouchTime = Date.now();
-      event.preventDefault();
+      touchHandled = true;
       handleProgressSquareClick(event);
     });
+    
     progressSquareContainer.addEventListener('touchend', (event) => {
       lastSquareTouchTime = Date.now();
-      event.preventDefault();
+      touchHandled = true;
       handleProgressSquareClick(event);
     }, { passive: false });
     progressSquareContainer.addEventListener('keydown', (event) => {
