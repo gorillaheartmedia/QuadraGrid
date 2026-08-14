@@ -10,11 +10,11 @@
   <meta name="apple-mobile-web-app-title" content="Goal Tracker" />
   <title>Goal Setting App</title>
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="icon" href="app-icon.svg" type="image/svg+xml" />
-  <link rel="apple-touch-icon" href="app-icon.svg" />
+  <link rel="icon" href="tile.png" type="image/png" />
+  <link rel="apple-touch-icon" href="tile.png" />
   <style>
     :root {
-      --bg: #101418;
+      --bg: #000000;
       --panel: #182028;
       --panel-2: #212b36;
       --text: #eef3f7;
@@ -38,7 +38,7 @@
     body {
       margin: 0;
       font-family: Arial, Helvetica, sans-serif;
-      background: linear-gradient(180deg, #0d1116 0%, #111923 100%);
+      background: #000000;
       color: var(--text);
       min-height: 100dvh;
       overflow: hidden;
@@ -158,6 +158,7 @@
     .reminder-toast-actions button {
       flex: 1 1 120px;
     }
+
 
     .weekly-summary {
       display: grid;
@@ -301,6 +302,141 @@
       margin-bottom: 14px;
     }
 
+    .creator-preview {
+      display: grid;
+      grid-template-columns: 84px 1fr;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      margin-bottom: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(10, 14, 18, 0.98);
+    }
+
+    .creator-preview-tile {
+      width: 84px;
+      aspect-ratio: 1;
+      border: 0;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: var(--goal-color, var(--accent));
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12), 0 12px 26px var(--goal-color-glow, rgba(108,196,255,0.28));
+    }
+
+    .creator-preview-icon {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      filter: drop-shadow(0 3px 8px rgba(0,0,0,0.24));
+    }
+
+    .creator-preview-icon img {
+      width: 42px;
+      height: 42px;
+      display: block;
+      object-fit: contain;
+      filter: brightness(0) invert(1);
+      transform: scale(var(--goal-icon-scale, 1));
+      transform-origin: center;
+    }
+
+    .creator-preview-icon:empty::before {
+      content: '+';
+      font-size: 2rem;
+      line-height: 1;
+      color: rgba(255,255,255,0.9);
+    }
+
+    .creator-preview-copy {
+      min-width: 0;
+      display: grid;
+      gap: 5px;
+    }
+
+    .creator-preview-label {
+      font-size: 0.72rem;
+      line-height: 1;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    .creator-preview-name {
+      font-weight: bold;
+      color: var(--text);
+      line-height: 1.2;
+      overflow-wrap: anywhere;
+    }
+
+    .creator-preview-meta {
+      color: var(--muted);
+      font-size: 0.86rem;
+      line-height: 1.25;
+    }
+
+    .creator-section-title {
+      color: var(--muted);
+      font-size: 0.78rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0;
+      margin: 2px 0 0;
+    }
+
+    .advanced-options {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(17, 24, 32, 0.7);
+      padding: 0;
+    }
+
+    .advanced-options summary {
+      cursor: pointer;
+      padding: 12px;
+      color: var(--text);
+      font-weight: bold;
+      list-style-position: inside;
+    }
+
+    .advanced-options-body {
+      display: grid;
+      gap: 12px;
+      padding: 0 12px 12px;
+    }
+
+    .color-control-row {
+      display: grid;
+      grid-template-columns: 60px 1fr;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .color-control-row input[type="color"] {
+      width: 60px;
+    }
+
+    .icon-options {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: rgba(17, 24, 32, 0.7);
+    }
+
+    .icon-options summary {
+      cursor: pointer;
+      padding: 12px;
+      color: var(--text);
+      font-weight: bold;
+      list-style-position: inside;
+    }
+
+    .icon-options-body {
+      padding: 0 12px 12px;
+    }
+
     .step-hidden {
       display: none;
     }
@@ -311,6 +447,34 @@
       gap: 12px;
     }
 
+    .weekday-picker {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 8px;
+      width: 100%;
+    }
+
+    .weekday-chip {
+      min-height: 48px;
+      border-radius: 999px;
+      padding: 10px 6px;
+      display: grid;
+      place-items: center;
+      background: #2a3642;
+      color: var(--muted);
+      border: 1px solid #394959;
+      font-weight: bold;
+      font-size: 0.84rem;
+      line-height: 1;
+    }
+
+    .weekday-chip.is-active {
+      background: var(--accent);
+      color: #07121b;
+      border-color: rgba(108, 196, 255, 0.9);
+      box-shadow: 0 8px 18px rgba(108, 196, 255, 0.24);
+    }
+
     .toolbar {
       display: flex;
       gap: 10px;
@@ -319,6 +483,11 @@
 
     .toolbar button {
       flex: 1 1 auto;
+    }
+
+    .toolbar button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
     }
 
     button,
@@ -471,6 +640,9 @@
     .icon-choice-symbol {
       font-size: 1.2rem;
       line-height: 1;
+      display: grid;
+      place-items: center;
+      overflow: visible;
     }
 
     .icon-choice-symbol svg,
@@ -483,6 +655,8 @@
 
     .icon-choice-symbol img {
       filter: brightness(0) invert(1);
+      transform: scale(var(--goal-icon-scale, 1));
+      transform-origin: center;
     }
 
     .icon-choice-symbol svg {
@@ -841,7 +1015,8 @@
     }
 
     .progress-square {
-      width: min(98vw, 470px);
+      width: min(92vw, 390px);
+      --quadra-icon-size: clamp(40px, 13%, 52px);
       aspect-ratio: 1;
       position: relative;
       margin: 0 auto;
@@ -858,7 +1033,7 @@
     }
 
     .empty-goal-state {
-      width: min(98vw, 470px);
+      width: min(92vw, 390px);
       aspect-ratio: 1;
       display: grid;
       place-items: center;
@@ -951,16 +1126,56 @@
       filter: brightness(1.18);
     }
 
-    .progress-segment.fragment-1 { clip-path: polygon(0 0, 50% 0, 50% 50%, 0 50%); }
-    .progress-segment.fragment-2 { clip-path: polygon(50% 0, 100% 0, 100% 50%, 50% 50%); }
-    .progress-segment.fragment-3 { clip-path: polygon(50% 50%, 100% 50%, 100% 100%, 50% 100%); }
-    .progress-segment.fragment-4 { clip-path: polygon(0 50%, 50% 50%, 50% 100%, 0 100%); }
+    .progress-segment.fragment-1 { clip-path: polygon(0 0, 50% 0, 50% 50%, 0 50%); z-index: 4; }
+    .progress-segment.fragment-2 { clip-path: polygon(50% 0, 100% 0, 100% 50%, 50% 50%); z-index: 1; }
+    .progress-segment.fragment-3 { clip-path: polygon(50% 50%, 100% 50%, 100% 100%, 50% 100%); z-index: 2; }
+    .progress-segment.fragment-4 { clip-path: polygon(0 50%, 50% 50%, 50% 100%, 0 100%); z-index: 3; }
 
     .segment-core {
       position: absolute;
       inset: 0;
       transform: rotate(-45deg);
       pointer-events: none;
+    }
+
+    .progress-icon-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 8;
+      transform: rotate(-45deg);
+      transform-origin: center;
+      pointer-events: none;
+    }
+
+    .progress-icon-anchor {
+      position: absolute;
+      width: var(--quadra-icon-size);
+      height: var(--quadra-icon-size);
+      display: grid;
+      place-items: center;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    .progress-icon-anchor.fragment-1 {
+      top: 15%;
+      left: 50%;
+    }
+
+    .progress-icon-anchor.fragment-2 {
+      top: 50%;
+      left: 85%;
+    }
+
+    .progress-icon-anchor.fragment-3 {
+      top: 85%;
+      left: 50%;
+    }
+
+    .progress-icon-anchor.fragment-4 {
+      top: 50%;
+      left: 15%;
     }
 
     .segment-center-icon {
@@ -970,6 +1185,7 @@
       transform: translate(100%, -158%);
       display: grid;
       place-items: center;
+      pointer-events: none;
     }
 
     .progress-segment.fragment-1 .segment-center-icon {
@@ -980,34 +1196,34 @@
 
     .progress-segment.fragment-2 .segment-center-icon {
       top: 50%;
-      left: calc(64% + 60px);
+      left: 83%;
       transform: translate(-50%, -50%);
     }
 
     .progress-segment.fragment-3 .segment-center-icon {
-      top: calc(72% + 25px);
-      left: calc(72% - 60px);
+      top: 84%;
+      left: 50%;
       transform: translate(-50%, -50%);
     }
 
     .progress-segment.fragment-4 .segment-center-icon {
       top: 50%;
-      left: calc(36% - 60px);
+      left: 17%;
       transform: translate(-50%, -50%);
     }
 
     .progress-segment.fragment-2 .segment-symbol.goal-icon,
     .progress-segment.fragment-4 .segment-symbol.goal-icon {
-      width: 52px;
-      height: 52px;
+      width: 44px;
+      height: 44px;
     }
 
     .progress-segment.fragment-2 .segment-symbol.goal-icon svg,
     .progress-segment.fragment-4 .segment-symbol.goal-icon svg,
     .progress-segment.fragment-2 .segment-symbol.goal-icon img,
     .progress-segment.fragment-4 .segment-symbol.goal-icon img {
-      width: 52px;
-      height: 52px;
+      width: 44px;
+      height: 44px;
     }
 
     .segment-meta {
@@ -1019,22 +1235,28 @@
       line-height: 1;
       color: rgba(255,255,255,0.95);
       text-shadow: 0 3px 14px rgba(0,0,0,0.28);
+      pointer-events: none;
+    }
+
+    .progress-icon-anchor .segment-symbol {
+      font-size: calc(var(--quadra-icon-size) * 0.72);
     }
 
     .segment-symbol.goal-icon {
-      width: 60px;
-      height: 60px;
+      width: 50px;
+      height: 50px;
       display: grid;
       place-items: center;
       color: #ffffff;
       text-shadow: none;
       filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25));
+      overflow: visible;
     }
 
     .segment-symbol.goal-icon svg,
     .segment-symbol.goal-icon img {
-      width: 60px;
-      height: 60px;
+      width: 50px;
+      height: 50px;
       display: block;
       object-fit: contain;
     }
@@ -1046,6 +1268,18 @@
     .segment-symbol.goal-icon svg {
       fill: currentColor;
       stroke: currentColor;
+    }
+
+    .progress-icon-anchor .segment-symbol.goal-icon,
+    .progress-icon-anchor .segment-symbol.goal-icon svg,
+    .progress-icon-anchor .segment-symbol.goal-icon img {
+      width: var(--quadra-icon-size);
+      height: var(--quadra-icon-size);
+    }
+
+    .progress-icon-anchor .segment-symbol.goal-icon img {
+      transform: scale(var(--goal-icon-scale, 1));
+      transform-origin: center;
     }
 
     @keyframes priorityPulse {
@@ -1163,20 +1397,58 @@
     .goal-hub-actions {
       grid-template-columns: 1fr;
       gap: 12px;
-      margin-top: 14px;
+      margin-top: auto;
       margin-bottom: 0;
       width: 100%;
+      padding: 12px;
+      background: rgba(24, 32, 40, 0.98);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
     }
 
     .goal-hub-btn {
-      min-height: 64px;
+      min-height: 58px;
       width: 100%;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 12px;
+      gap: 8px;
       text-align: center;
       padding: 14px 16px;
+    }
+
+    .goal-hub-summary {
+      display: grid;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .goal-hub-panel {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      gap: 14px;
+      min-height: min(88dvh, 760px);
+      background: transparent;
+      border: 0;
+      box-shadow: none;
+      padding: max(10px, env(safe-area-inset-top)) 6px max(18px, env(safe-area-inset-bottom));
+      overflow: visible;
+    }
+
+    .goal-hub-panel .modal-head,
+    .goal-hub-panel #goalHubContent {
+      background: rgba(24, 32, 40, 0.98);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      padding: 14px 16px;
+    }
+
+    .goal-hub-panel .modal-head {
+      margin-bottom: 0;
     }
 
     .goal-hub-btn .action-icon {
@@ -1324,6 +1596,30 @@
       gap: 10px;
       font-size: 0.92rem;
       color: var(--muted);
+    }
+
+    .legend-item.spread {
+      justify-content: space-between;
+    }
+
+    .legend-item.spread button {
+      flex: 0 0 auto;
+    }
+
+    .details-inline-action {
+      margin-top: 8px;
+    }
+
+    .details-inline-action button {
+      width: 100%;
+    }
+
+    .details-fixed-action {
+      margin-top: 10px;
+    }
+
+    .details-fixed-action button {
+      width: 100%;
     }
 
     .schedule-wrap {
@@ -1835,6 +2131,10 @@
         grid-template-columns: repeat(2, 1fr);
       }
 
+      .goal-hub-actions {
+        grid-template-columns: 1fr;
+      }
+
       .goal-dashboard-summary {
         grid-template-columns: repeat(2, 1fr);
       }
@@ -1860,7 +2160,7 @@
 
       .progress-square,
       .empty-goal-state {
-        width: min(98vw, 460px);
+        width: min(92vw, 390px);
       }
 
       .modal-panel {
@@ -1887,7 +2187,7 @@
 
       .progress-square,
       .empty-goal-state {
-        width: min(99vw, 470px);
+        width: min(94vw, 390px);
       }
     }
 
@@ -1900,9 +2200,81 @@
     }
 
     @media (orientation: portrait) and (max-width: 900px) {
+      .main-square-stage {
+        padding: 10px 0 14px;
+      }
+
       .progress-square,
       .empty-goal-state {
-        width: min(150vw, 74dvh, 620px);
+        width: min(
+          calc((100vw - 28px) / 1.42),
+          calc((100dvh - 180px) / 1.42),
+          285px
+        );
+      }
+    }
+
+    @media (orientation: landscape) and (max-width: 900px) {
+      .main-square-stage {
+        padding: 6px 0 10px;
+      }
+
+      .progress-square,
+      .empty-goal-state {
+        width: min(
+          calc((100vw - 44px) / 1.42),
+          calc((100dvh - 88px) / 1.42),
+          220px
+        );
+      }
+
+      .segment-symbol.goal-icon {
+        width: 52px;
+        height: 52px;
+      }
+
+      .segment-symbol.goal-icon svg,
+      .segment-symbol.goal-icon img {
+        width: 52px;
+        height: 52px;
+      }
+
+      .progress-segment.fragment-2 .segment-symbol.goal-icon,
+      .progress-segment.fragment-4 .segment-symbol.goal-icon {
+        width: 48px;
+        height: 48px;
+      }
+
+      .progress-segment.fragment-2 .segment-symbol.goal-icon svg,
+      .progress-segment.fragment-4 .segment-symbol.goal-icon svg,
+      .progress-segment.fragment-2 .segment-symbol.goal-icon img,
+      .progress-segment.fragment-4 .segment-symbol.goal-icon img {
+        width: 48px;
+        height: 48px;
+      }
+
+      .progress-segment.fragment-1 .segment-center-icon {
+        top: 14%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      .progress-segment.fragment-2 .segment-center-icon {
+        top: 50%;
+        left: 83%;
+        transform: translate(-50%, -50%);
+      }
+
+      .progress-segment.fragment-3 .segment-center-icon {
+        top: 84%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      .progress-segment.fragment-4 .segment-center-icon {
+        top: 50%;
+        left: 17%;
+        transform: translate(-50%, -50%);
       }
     }
   </style>
@@ -1926,6 +2298,7 @@
       <div id="weeklySummaryContainer" class="weekly-summary-slot"></div>
     </section>
   </div>
+  </div>
   <div id="reminderToast" class="reminder-toast"></div>
 
   <div class="modal" id="goalCreationModal">
@@ -1946,27 +2319,45 @@
               <input id="goalName" type="text" maxlength="80" placeholder="Example: Walk 20 minutes" />
               <div class="generator-note" id="randomGoalNote">Generate a starter idea for writing, workouts, cleaning, and similar light routines.</div>
             </div>
-            <div class="field">
-              <label for="goalFrequency">Goal Frequency</label>
-              <select id="goalFrequency">
-                <option value="Daily">Daily</option>
-                <option value="Weekdays">Weekdays</option>
-                <option value="3x Weekly">3x Weekly</option>
-                <option value="Custom Daily Check">Custom Daily Check</option>
-                <option value="One Shot">One Shot</option>
-              </select>
+          </div>
+        </div>
+
+        <div class="wizard-step step-hidden" id="goalWizardStep2">
+          <div class="field-grid">
+            <div class="creator-preview" aria-label="Goal tile preview">
+              <div class="creator-preview-tile" id="goalPreviewTile">
+                <span class="creator-preview-icon" id="goalPreviewIcon"></span>
+              </div>
+              <div class="creator-preview-copy">
+                <div class="creator-preview-label">Tile Preview</div>
+                <div class="creator-preview-name" id="goalPreviewName">New Goal</div>
+                <div class="creator-preview-meta" id="goalPreviewMeta">Daily · 0h 0m · Morning</div>
+              </div>
             </div>
+
             <div class="field">
-              <label for="goalColor">Goal Color</label>
-              <input id="goalColor" type="color" value="#6cc4ff" />
+              <label for="goalColor">Tile Color</label>
+              <div class="color-control-row">
+                <input id="goalColor" type="color" value="#6cc4ff" />
+                <input id="goalColorHex" type="text" maxlength="7" value="#6cc4ff" aria-label="Hex color" />
+              </div>
             </div>
+
             <div class="field">
-              <label for="goalIcon">Optional Goal Icon</label>
-              <select id="goalIcon" class="visually-hidden" aria-label="Optional Goal Icon">
-                <option value="">None</option>
-              </select>
-              <div class="icon-picker" id="goalIconPicker" aria-label="Goal icon choices"></div>
+              <label for="goalColorTone">Color Tone</label>
+              <input id="goalColorTone" type="range" min="70" max="130" value="100" />
             </div>
+
+            <details class="icon-options" id="iconOptions">
+              <summary>Add icon</summary>
+              <div class="icon-options-body">
+                <select id="goalIcon" class="visually-hidden" aria-label="Optional Goal Icon">
+                  <option value="">None</option>
+                </select>
+                <div class="icon-picker" id="goalIconPicker" aria-label="Goal icon choices"></div>
+              </div>
+            </details>
+
             <div class="field module-hidden" id="priorityFieldWrap">
               <label for="priorityLevel">Priority</label>
               <select id="priorityLevel">
@@ -1985,8 +2376,44 @@
           </div>
         </div>
 
-        <div class="wizard-step step-hidden" id="goalWizardStep2">
+        <div class="wizard-step step-hidden" id="goalWizardStep3">
           <div class="field-grid">
+            <div class="duration-grid">
+              <div class="field">
+                <label for="estimatedHours">Hours</label>
+                <input id="estimatedHours" type="number" min="0" max="24" placeholder="0" />
+              </div>
+              <div class="field">
+                <label for="estimatedMinutes">Minutes</label>
+                <input id="estimatedMinutes" type="number" min="0" max="59" placeholder="00" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="wizard-step step-hidden" id="goalWizardStep4">
+          <div class="field-grid">
+            <div class="field">
+              <label for="goalFrequency">Goal Frequency</label>
+              <select id="goalFrequency">
+                <option value="Daily">Daily</option>
+                <option value="Selected Days">Selected Days</option>
+                <option value="One Shot">One Shot</option>
+              </select>
+            </div>
+            <div class="field" id="selectedDaysField">
+              <label>Days of the Week</label>
+              <div class="weekday-picker" id="weekdayPicker" aria-label="Select recurring weekdays">
+                <button class="weekday-chip" type="button" data-weekday="0">Sun</button>
+                <button class="weekday-chip" type="button" data-weekday="1">Mon</button>
+                <button class="weekday-chip" type="button" data-weekday="2">Tue</button>
+                <button class="weekday-chip" type="button" data-weekday="3">Wed</button>
+                <button class="weekday-chip" type="button" data-weekday="4">Thu</button>
+                <button class="weekday-chip" type="button" data-weekday="5">Fri</button>
+                <button class="weekday-chip" type="button" data-weekday="6">Sat</button>
+              </div>
+              <div class="footer-note">Choose the weekdays this goal should repeat during its date range.</div>
+            </div>
             <div class="row-2">
               <div class="field">
                 <label for="startDate">Beginning Date</label>
@@ -1998,40 +2425,29 @@
               </div>
             </div>
 
-            <div class="row-2">
-              <div class="field">
-                <label for="performTime">Best Time of Day</label>
-                <select id="performTime">
-                  <option value="Morning">Morning</option>
-                  <option value="Afternoon">Afternoon</option>
-                  <option value="Evening">Evening</option>
-                  <option value="Night">Night</option>
-                  <option value="Flexible">Flexible</option>
-                </select>
-              </div>
-              <div class="duration-grid">
-                <div class="field">
-                  <label for="estimatedHours">Estimated Duration (hours)</label>
-                  <input id="estimatedHours" type="number" min="0" max="24" placeholder="0" />
-                </div>
-                <div class="field">
-                  <label for="estimatedMinutes">Estimated Duration (minutes)</label>
-                  <input id="estimatedMinutes" type="number" min="0" max="59" placeholder="00" />
-                </div>
-              </div>
+            <div class="field">
+              <label for="performTime">Best Time of Day</label>
+              <select id="performTime">
+                <option value="Morning">Morning</option>
+                <option value="Afternoon">Afternoon</option>
+                <option value="Evening">Evening</option>
+                <option value="Night">Night</option>
+                <option value="Flexible">Flexible</option>
+              </select>
             </div>
 
-            <div class="row-2">
-              <div class="field">
-                <label for="reminderTime">Reminder Time</label>
-                <input id="reminderTime" type="time" />
-              </div>
-              <div class="field">
-                <label for="emailReminder">Email Reminder Address</label>
-                <input id="emailReminder" type="email" placeholder="name@example.com" />
-              </div>
+            <div class="field">
+              <label>Reminder</label>
+              <input id="reminderTime" class="visually-hidden" type="time" tabindex="-1" aria-hidden="true" />
+              <input id="reminderMode" type="hidden" value="notification" />
+              <button class="btn-secondary" id="reminderOptionsBtn" type="button">Reminder Options</button>
+              <div class="footer-note" id="reminderSummary">No reminder set.</div>
             </div>
+          </div>
+        </div>
 
+        <div class="wizard-step step-hidden" id="goalWizardStep5">
+          <div class="field-grid">
             <div class="field">
               <label for="goalLink">Optional Goal Resource Link</label>
               <input id="goalLink" type="url" placeholder="https://example.com/resource" />
@@ -2046,7 +2462,38 @@
         <button class="btn-primary module-hidden" id="wizardSubmitBtn">Create Goal</button>
       </div>
       <div class="footer-note">
-        You can create up to 4 active goals. Reminder times are stored in the app. Browser-based apps cannot send true push notifications or automated emails by themselves without a backend/service worker.
+        You can create up to 4 active goals. Notifications work in the app. Alarm mode uses the Android build's native in-app alarm screen.
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="reminderOptionsModal">
+    <div class="modal-panel">
+      <div class="modal-head">
+        <h3 id="reminderOptionsTitle">Reminder Options</h3>
+        <button class="modal-close" id="closeReminderOptionsBtn">Close</button>
+      </div>
+      <div class="field-grid">
+        <div class="field">
+          <label for="reminderOptionsTime">Reminder Time</label>
+          <input id="reminderOptionsTime" type="time" />
+        </div>
+        <div class="field">
+          <label for="reminderOptionsMode">Reminder Type</label>
+          <select id="reminderOptionsMode">
+            <option value="notification">Notification</option>
+            <option value="alarm">Alarm</option>
+            <option value="both">Both</option>
+          </select>
+        </div>
+        <div class="footer-note" id="reminderOptionsHelp">
+          Notifications are app reminders. Alarm mode uses the Android build's native in-app alarm screen.
+        </div>
+      </div>
+      <div class="toolbar" style="margin-top: 14px; gap: 8px;">
+        <button class="btn-secondary" id="openPhoneAlarmBtn" type="button">Alarm Access</button>
+        <button class="btn-secondary" id="clearReminderOptionsBtn" type="button">Clear</button>
+        <button class="btn-primary" id="saveReminderOptionsBtn" type="button">Save Reminder</button>
       </div>
     </div>
   </div>
@@ -2080,17 +2527,13 @@
   </div>
 
   <div class="modal" id="goalHubModal">
-    <div class="modal-panel">
+    <div class="modal-panel goal-hub-panel">
       <div class="modal-head">
         <h3 id="goalHubTitle">Goal</h3>
         <button class="modal-close" id="closeGoalHubBtn">Close</button>
       </div>
       <div id="goalHubContent" class="legend"></div>
       <div class="goal-actions goal-hub-actions">
-        <button class="goal-hub-btn is-toggle-complete" id="goalHubCompleteBtn">
-          <span class="action-icon" id="goalHubCompleteIcon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z" /></svg></span>
-          <span class="action-label" id="goalHubCompleteLabel">Did It</span>
-        </button>
         <button class="btn-primary goal-hub-btn" id="goalHubTimerBtn">
           <span class="action-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 1H9v2h6V1zm-3 5a8 8 0 1 0 8 8 8 8 0 0 0-8-8zm1 9h-5v-2h3V9h2v6z" /></svg></span>
           <span class="action-label">Timer</span>
@@ -2098,6 +2541,10 @@
         <button class="btn-secondary goal-hub-btn" id="goalHubTrackBtn">
           <span class="action-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9h3v10H5zM10.5 5h3v14h-3zM16 12h3v7h-3z" /></svg></span>
           <span class="action-label">Dashboard</span>
+        </button>
+        <button class="goal-hub-btn is-toggle-complete" id="goalHubCompleteBtn">
+          <span class="action-icon" id="goalHubCompleteIcon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z" /></svg></span>
+          <span class="action-label" id="goalHubCompleteLabel">Did It</span>
         </button>
       </div>
     </div>
@@ -2227,47 +2674,48 @@
     const ACHIEVEMENT_COMPLETION_MILESTONES = [10, 25, 50, 75, 100, 150, 200, 250, 300, 500, 750, 1000];
     const ACHIEVEMENT_HOUR_MILESTONES = [5, 10, 15, 20, 25, 50, 75, 100];
     const SOUND_FILES = {
-      select: 'creatorshome-select-002-337219.mp3',
+      hover: 'click-1.mp3',
+      select: 'bubble.mp3',
       error: 'universfield-error-08-206492.mp3',
       complete: 'goal complete.mp3',
       achievement: 'universfield-level-up-04-243762.mp3'
     };
     const RANDOM_GOAL_TEMPLATES = [
-      { name: 'Write one short journal page', frequency: 'Daily', bestTime: 'Morning', hours: 0, minutes: 15, icon: 'pencil', color: '#6cc4ff' },
-      { name: 'Do a 20 minute light workout', frequency: 'Daily', bestTime: 'Morning', hours: 0, minutes: 20, icon: 'dumbbell', color: '#2ecc71' },
-      { name: 'Clean one room reset', frequency: 'Weekdays', bestTime: 'Afternoon', hours: 0, minutes: 25, icon: 'cloud', color: '#f1c40f' },
-      { name: 'Write three new ideas', frequency: 'Daily', bestTime: 'Evening', hours: 0, minutes: 10, icon: 'idea', color: '#59e7c0' },
-      { name: 'Stretch and mobility routine', frequency: 'Daily', bestTime: 'Morning', hours: 0, minutes: 15, icon: 'meditation', color: '#e74c3c' },
-      { name: 'Declutter one small area', frequency: 'Weekdays', bestTime: 'Afternoon', hours: 0, minutes: 15, icon: 'book', color: '#6cc4ff' },
-      { name: 'Free write for 20 minutes', frequency: '3x Weekly', bestTime: 'Night', hours: 0, minutes: 20, icon: 'pencil', color: '#2ecc71' },
-      { name: 'Take a brisk walk outside', frequency: 'Daily', bestTime: 'Evening', hours: 0, minutes: 30, icon: 'heart', color: '#f1c40f' },
-      { name: 'Clean dishes and kitchen counters', frequency: 'Daily', bestTime: 'Evening', hours: 0, minutes: 20, icon: 'food', color: '#59e7c0' },
-      { name: 'Read and outline one chapter', frequency: 'Weekdays', bestTime: 'Night', hours: 0, minutes: 25, icon: 'book', color: '#e74c3c' }
+      { name: 'Write one short journal page', frequency: 'Daily', selectedWeekdays: [], bestTime: 'Morning', hours: 0, minutes: 15, icon: 'pencil', color: '#6cc4ff' },
+      { name: 'Do a 20 minute light workout', frequency: 'Daily', selectedWeekdays: [], bestTime: 'Morning', hours: 0, minutes: 20, icon: 'dumbbell', color: '#2ecc71' },
+      { name: 'Clean one room reset', frequency: 'Selected Days', selectedWeekdays: [1, 3, 5], bestTime: 'Afternoon', hours: 0, minutes: 25, icon: 'cloud', color: '#f1c40f' },
+      { name: 'Write three new ideas', frequency: 'Daily', selectedWeekdays: [], bestTime: 'Evening', hours: 0, minutes: 10, icon: 'idea', color: '#59e7c0' },
+      { name: 'Stretch and mobility routine', frequency: 'Daily', selectedWeekdays: [], bestTime: 'Morning', hours: 0, minutes: 15, icon: 'meditation', color: '#e74c3c' },
+      { name: 'Declutter one small area', frequency: 'Selected Days', selectedWeekdays: [2, 4, 6], bestTime: 'Afternoon', hours: 0, minutes: 15, icon: 'book', color: '#6cc4ff' },
+      { name: 'Free write for 20 minutes', frequency: 'Selected Days', selectedWeekdays: [1, 4], bestTime: 'Night', hours: 0, minutes: 20, icon: 'pencil', color: '#2ecc71' },
+      { name: 'Take a brisk walk outside', frequency: 'Daily', selectedWeekdays: [], bestTime: 'Evening', hours: 0, minutes: 30, icon: 'heart', color: '#f1c40f' },
+      { name: 'Clean dishes and kitchen counters', frequency: 'Daily', selectedWeekdays: [], bestTime: 'Evening', hours: 0, minutes: 20, icon: 'food', color: '#59e7c0' },
+      { name: 'Read and outline one chapter', frequency: 'Selected Days', selectedWeekdays: [1, 3, 5], bestTime: 'Night', hours: 0, minutes: 25, icon: 'book', color: '#e74c3c' }
     ];
     const DEFAULT_GOAL_COLORS = ['#6cc4ff', '#2ecc71', '#f1c40f', '#e74c3c', '#59e7c0'];
     const GOAL_ICON_MAP = {
-      heart: { label: 'Heart', file: 'heart-svgrepo-com.svg' },
-      dumbbell: { label: 'Dumbbell', file: 'dumbbell-8-svgrepo-com.svg' },
-      food: { label: 'Food', file: 'food-restaurant-svgrepo-com.svg' },
-      fire: { label: 'Fire', file: 'fire.svg' },
-      hazard: { label: 'Biohazard', file: 'biohazard-symbol-svgrepo-com.svg' },
-      warning: { label: 'Warning', file: 'exclamation-warning-sign-svgrepo-com.svg' },
-      poison: { label: 'Skull', file: 'poison-svgrepo-com.svg' },
-      idea: { label: 'Idea', file: 'idea-svgrepo-com.svg' },
-      pencil: { label: 'Write', file: 'write-svgrepo-com.svg' },
-      book: { label: 'Book', file: 'book-svgrepo-com.svg' },
-      cloud: { label: 'Cloud', file: 'cloud-svgrepo-com.svg' },
-      computer: { label: 'Computer', file: 'computer-svgrepo-com.svg' },
-      controller: { label: 'Controller', file: 'controller-svgrepo-com.svg' },
-      basketball: { label: 'Basketball', file: 'basketball-svgrepo-com.svg' },
-      headphones: { label: 'Headphones', file: 'headphones-square-svgrepo-com.svg' },
-      meditation: { label: 'Meditation', file: 'meditation-meditate-mindful-mindfulness-svgrepo-com.svg' },
-      music: { label: 'Music', file: 'music-note-svgrepo-com.svg' },
-      money: { label: 'Money', file: 'money-sign-money-dollar-sign-svgrepo-com.svg' },
-      phone: { label: 'Phone', file: 'phone-calling-svgrepo-com.svg' },
-      photo: { label: 'Photo', file: 'photo-svgrepo-com.svg' },
-      star: { label: 'Star', file: 'star-svgrepo-com.svg' },
-      test: { label: 'Test', file: 'test-svgrepo-com.svg' }
+      heart: { label: 'Heart', file: 'heart-svgrepo-com.svg', scale: 1.1 },
+      dumbbell: { label: 'Dumbbell', file: 'dumbbell-8-svgrepo-com.svg', scale: 1.42 },
+      food: { label: 'Food', file: 'food-restaurant-svgrepo-com.svg', scale: 1.18 },
+      fire: { label: 'Fire', file: 'fire.svg', scale: 1.12 },
+      hazard: { label: 'Biohazard', file: 'biohazard-symbol-svgrepo-com.svg', scale: 1.08 },
+      warning: { label: 'Warning', file: 'exclamation-warning-sign-svgrepo-com.svg', scale: 1.1 },
+      poison: { label: 'Skull', file: 'poison-svgrepo-com.svg', scale: 2 },
+      idea: { label: 'Idea', file: 'idea-svgrepo-com.svg', scale: 1.55 },
+      pencil: { label: 'Write', file: 'write-svgrepo-com.svg', scale: 1.26 },
+      book: { label: 'Book', file: 'book-svgrepo-com.svg', scale: 1.12 },
+      cloud: { label: 'Cloud', file: 'cloud-svgrepo-com.svg', scale: 1.18 },
+      computer: { label: 'Computer', file: 'computer-svgrepo-com.svg', scale: 1.14 },
+      controller: { label: 'Controller', file: 'controller-svgrepo-com.svg', scale: 1.2 },
+      basketball: { label: 'Basketball', file: 'basketball-svgrepo-com.svg', scale: 1.08 },
+      headphones: { label: 'Headphones', file: 'headphones-square-svgrepo-com.svg', scale: 1 },
+      meditation: { label: 'Meditation', file: 'meditation-meditate-mindful-mindfulness-svgrepo-com.svg', scale: 1.08 },
+      music: { label: 'Music', file: 'music-note-svgrepo-com.svg', scale: 1.26 },
+      money: { label: 'Money', file: 'money-sign-money-dollar-sign-svgrepo-com.svg', scale: 1.12 },
+      phone: { label: 'Phone', file: 'phone-calling-svgrepo-com.svg', scale: 1.18 },
+      photo: { label: 'Photo', file: 'photo-svgrepo-com.svg', scale: 1.12 },
+      star: { label: 'Star', file: 'star-svgrepo-com.svg', scale: 1.1 },
+      test: { label: 'Test', file: 'test-svgrepo-com.svg', scale: 1.12 }
     };
 
     const state = {
@@ -2287,10 +2735,16 @@
     let completionReturnTimer = null;
     let lastRefreshTickKey = '';
     let lastSquareTouchTime = 0;
+    let selectedWeekdaysState = [0, 1, 2, 3, 4, 5, 6];
+    let nativeNotificationListenersBound = false;
+    let goalHubOpenedAt = 0;
     let achievementQueue = [];
     let activeAchievement = null;
+    const NATIVE_REMINDER_SOUND = 'reminder_alarm.mp3';
     const soundPlayers = {};
     let deferredInstallPrompt = null;
+    let currentReminderGoalId = null;
+    let nativeAlarmBridgeProxy = null;
 
     const goalName = document.getElementById('goalName');
     const randomGoalBtn = document.getElementById('randomGoalBtn');
@@ -2299,16 +2753,26 @@
     const endDate = document.getElementById('endDate');
     const performTime = document.getElementById('performTime');
     const reminderTime = document.getElementById('reminderTime');
-    const emailReminder = document.getElementById('emailReminder');
+    const reminderMode = document.getElementById('reminderMode');
+    const reminderOptionsBtn = document.getElementById('reminderOptionsBtn');
+    const reminderSummary = document.getElementById('reminderSummary');
     const goalLink = document.getElementById('goalLink');
     const estimatedHours = document.getElementById('estimatedHours');
     const estimatedMinutes = document.getElementById('estimatedMinutes');
     const goalFrequency = document.getElementById('goalFrequency');
+    const selectedDaysField = document.getElementById('selectedDaysField');
+    const weekdayPicker = document.getElementById('weekdayPicker');
     const goalColor = document.getElementById('goalColor');
+    const goalColorHex = document.getElementById('goalColorHex');
+    const goalColorTone = document.getElementById('goalColorTone');
     const goalIcon = document.getElementById('goalIcon');
     const priorityFieldWrap = document.getElementById('priorityFieldWrap');
     const priorityLevel = document.getElementById('priorityLevel');
     const goalIconPicker = document.getElementById('goalIconPicker');
+    const goalPreviewTile = document.getElementById('goalPreviewTile');
+    const goalPreviewIcon = document.getElementById('goalPreviewIcon');
+    const goalPreviewName = document.getElementById('goalPreviewName');
+    const goalPreviewMeta = document.getElementById('goalPreviewMeta');
     const goalIconChoices = [];
     const addGoalBtn = document.getElementById('wizardSubmitBtn');
     const wizardNextBtn = document.getElementById('wizardNextBtn');
@@ -2316,6 +2780,9 @@
     const wizardProgress = document.getElementById('wizardProgress');
     const goalWizardStep1 = document.getElementById('goalWizardStep1');
     const goalWizardStep2 = document.getElementById('goalWizardStep2');
+    const goalWizardStep3 = document.getElementById('goalWizardStep3');
+    const goalWizardStep4 = document.getElementById('goalWizardStep4');
+    const goalWizardStep5 = document.getElementById('goalWizardStep5');
     const appContent = document.getElementById('appContent');
     const goalCreationModal = document.getElementById('goalCreationModal');
     const closeGoalCreationBtn = document.getElementById('closeGoalCreationBtn');
@@ -2330,6 +2797,15 @@
     const openLegendBtn = document.getElementById('openLegendBtn');
     const closeLegendBtn = document.getElementById('closeLegendBtn');
     const seedExampleBtn = document.getElementById('seedExampleBtn');
+    const reminderOptionsModal = document.getElementById('reminderOptionsModal');
+    const reminderOptionsTitle = document.getElementById('reminderOptionsTitle');
+    const reminderOptionsTime = document.getElementById('reminderOptionsTime');
+    const reminderOptionsMode = document.getElementById('reminderOptionsMode');
+    const reminderOptionsHelp = document.getElementById('reminderOptionsHelp');
+    const closeReminderOptionsBtn = document.getElementById('closeReminderOptionsBtn');
+    const openPhoneAlarmBtn = document.getElementById('openPhoneAlarmBtn');
+    const clearReminderOptionsBtn = document.getElementById('clearReminderOptionsBtn');
+    const saveReminderOptionsBtn = document.getElementById('saveReminderOptionsBtn');
     const goalDetailsModal = document.getElementById('goalDetailsModal');
     const closeDetailsBtn = document.getElementById('closeDetailsBtn');
     const detailsGoalName = document.getElementById('detailsGoalName');
@@ -2345,6 +2821,7 @@
     const goalHubCompleteIcon = document.getElementById('goalHubCompleteIcon');
     const goalHubCompleteLabel = document.getElementById('goalHubCompleteLabel');
     const goalHubTimerBtn = document.getElementById('goalHubTimerBtn');
+    const goalHubReminderBtn = document.getElementById('goalHubReminderBtn');
     const goalHubTrackBtn = document.getElementById('goalHubTrackBtn');
     const trackingModal = document.getElementById('trackingModal');
     const closeTrackingBtn = document.getElementById('closeTrackingBtn');
@@ -2381,10 +2858,15 @@
     const completionGif = document.getElementById('completionGif');
     const completionReturnBtn = document.getElementById('completionReturnBtn');
     let currentDetailGoalId = null;
+    let currentEditingGoalId = null;
     let currentRedeemGoalId = null;
     let currentRecoveryAction = 'timer';
     let currentInterventionGoalId = null;
     let currentHubGoalId = null;
+    let goalCreationOpenedAt = 0;
+    let lastEmptyGoalOpenAt = 0;
+    let lastHoverSoundAt = 0;
+    let lastHoverSoundTarget = null;
     const timerState = {
       goalId: null,
       totalSeconds: 0,
@@ -2429,7 +2911,47 @@
 
     function getGoalIconMarkup(iconKey) {
       const iconData = getGoalIconData(iconKey);
-      return iconData ? `<img src="${iconData.file}" alt="" aria-hidden="true" />` : '';
+      const scale = iconData && Number.isFinite(iconData.scale) ? iconData.scale : 1;
+      return iconData ? `<img src="${iconData.file}" alt="" aria-hidden="true" style="--goal-icon-scale:${scale};" />` : '';
+    }
+
+    function adjustHexTone(hex, toneValue) {
+      const color = isValidHexColor(hex) ? hex : DEFAULT_GOAL_COLORS[0];
+      const tone = Math.max(70, Math.min(130, Number(toneValue || 100)));
+      const amount = Math.abs(tone - 100) / 30;
+      const target = tone >= 100 ? 255 : 0;
+      const channels = [1, 3, 5].map(index => parseInt(color.slice(index, index + 2), 16));
+      const adjusted = channels.map(channel => {
+        const value = tone >= 100
+          ? channel + ((target - channel) * amount)
+          : channel * (1 - amount);
+        return Math.max(0, Math.min(255, Math.round(value))).toString(16).padStart(2, '0');
+      });
+      return `#${adjusted.join('')}`;
+    }
+
+    function getCurrentGoalColor() {
+      return adjustHexTone(goalColor.value, goalColorTone ? goalColorTone.value : 100);
+    }
+
+    function syncGoalColorHexFromPicker() {
+      if (goalColorHex) goalColorHex.value = goalColor.value;
+    }
+
+    function updateGoalPreview() {
+      if (!goalPreviewTile || !goalPreviewName || !goalPreviewMeta || !goalPreviewIcon) return;
+      const color = getCurrentGoalColor();
+      const name = goalName.value.trim() || 'New Goal';
+      const frequency = normalizeFrequency(goalFrequency.value || 'Daily');
+      const bestTime = performTime.value || 'Morning';
+      const hours = Number(estimatedHours.value || 0);
+      const minutes = Number(estimatedMinutes.value || 0);
+
+      goalPreviewTile.style.setProperty('--goal-color', color);
+      goalPreviewTile.style.setProperty('--goal-color-glow', hexToRgba(color, 0.38));
+      goalPreviewName.textContent = name;
+      goalPreviewMeta.textContent = `${frequency} · ${hours || 0}h ${minutes || 0}m · ${bestTime}`;
+      goalPreviewIcon.innerHTML = getGoalIconData(goalIcon.value) ? getGoalIconMarkup(goalIcon.value) : '';
     }
 
     function renderGoalIconPicker() {
@@ -2448,7 +2970,7 @@
         </button>`,
         ...iconEntries.map(([key, icon]) => `
           <button class="icon-choice" type="button" data-icon-value="${key}">
-            <span class="icon-choice-symbol"><img src="${icon.file}" alt="" aria-hidden="true" /></span>
+            <span class="icon-choice-symbol"><img src="${icon.file}" alt="" aria-hidden="true" style="--goal-icon-scale:${Number.isFinite(icon.scale) ? icon.scale : 1};" /></span>
             <span class="icon-choice-label">${icon.label}</span>
           </button>
         `)
@@ -2517,10 +3039,10 @@
       });
     }
 
-    function isPriorityTaken(priorityValue) {
+    function isPriorityTaken(priorityValue, ignoreGoalId = null) {
       const priority = Number(priorityValue);
       if (!Number.isFinite(priority)) return false;
-      return state.goals.some(goal => Number(goal.priority) === priority);
+      return state.goals.some(goal => goal.id !== ignoreGoalId && Number(goal.priority) === priority);
     }
 
     function hexToRgba(hex, alpha) {
@@ -2601,6 +3123,8 @@
       ensureArchivedGoals().unshift(...archivedItems);
       saveState(false);
       render();
+      syncNativeGoalReminders();
+      syncNativeGoalAlarms();
       showGoalConclusionScreen(archivedItems);
     }
 
@@ -2835,19 +3359,531 @@
       return `Reminder: ${goal.name}.${bestTime}`;
     }
 
-    function openGoalReminderEmail(id) {
-      const goal = state.goals.find(g => g.id === id);
-      if (!goal || !goal.email) return;
-      const subject = `Goal reminder: ${goal.name}`;
-      const body = [
-        `Reminder for: ${goal.name}`,
-        goal.reminderTime ? `Reminder time: ${goal.reminderTime}` : '',
-        goal.bestTime ? `Best time: ${goal.bestTime}` : '',
-        goal.goalLink ? `Resource: ${goal.goalLink}` : '',
-        '',
-        'Open the app and log progress for today.'
-      ].filter(Boolean).join('\n');
-      window.location.href = `mailto:${goal.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    function getCapacitorBridge() {
+      return window.Capacitor || null;
+    }
+
+    async function playNativeUiSound(kind) {
+      if (!isNativeAndroidRuntime()) return false;
+      const plugin = getNativeAlarmBridgePlugin();
+      if (!plugin || typeof plugin.playSystemSound !== 'function') return false;
+      try {
+        await plugin.playSystemSound({ kind: String(kind || 'select') });
+        return true;
+      } catch (err) {
+        console.warn('Native UI sound playback skipped', err);
+      }
+      return false;
+    }
+
+    function getNativeAlarmBridgePlugin() {
+      const capacitor = getCapacitorBridge();
+      if (!capacitor) return null;
+
+      if (nativeAlarmBridgeProxy) return nativeAlarmBridgeProxy;
+
+      if (capacitor.Plugins && capacitor.Plugins.AlarmBridge) {
+        nativeAlarmBridgeProxy = capacitor.Plugins.AlarmBridge;
+        return nativeAlarmBridgeProxy;
+      }
+
+      if (typeof capacitor.registerPlugin === 'function') {
+        try {
+          nativeAlarmBridgeProxy = capacitor.registerPlugin('AlarmBridge');
+          return nativeAlarmBridgeProxy;
+        } catch (err) {
+          console.warn('AlarmBridge registration lookup failed', err);
+        }
+      }
+
+      return null;
+    }
+
+    function getNativeLocalNotificationsPlugin() {
+      const capacitor = getCapacitorBridge();
+      return capacitor && capacitor.Plugins ? capacitor.Plugins.LocalNotifications || null : null;
+    }
+
+    function isNativeAppRuntime() {
+      const capacitor = getCapacitorBridge();
+      if (!capacitor) return false;
+      if (typeof capacitor.isNativePlatform === 'function') {
+        return Boolean(capacitor.isNativePlatform());
+      }
+      return false;
+    }
+
+    function isNativeAndroidRuntime() {
+      const capacitor = getCapacitorBridge();
+      if (!capacitor || typeof capacitor.getPlatform !== 'function') return false;
+      return isNativeAppRuntime() && capacitor.getPlatform() === 'android';
+    }
+
+    function canUseNativeAlarmScheduling() {
+      const plugin = getNativeAlarmBridgePlugin();
+      return !!(plugin && typeof plugin.syncAlarms === 'function' && typeof plugin.cancelAlarms === 'function');
+    }
+
+    function normalizeReminderMode(mode) {
+      return ['notification', 'alarm', 'both'].includes(mode) ? mode : 'notification';
+    }
+
+    function getGoalReminderMode(goal) {
+      return normalizeReminderMode(goal && goal.reminderMode);
+    }
+
+    function normalizeFrequency(frequency) {
+      if (frequency === 'One Shot') return 'One Shot';
+      if (frequency === 'Selected Days' || frequency === 'Weekdays' || frequency === '3x Weekly' || frequency === 'Custom Daily Check') {
+        return 'Selected Days';
+      }
+      return 'Daily';
+    }
+
+    function normalizeSelectedWeekdays(goal) {
+      if (!goal) return [];
+      const raw = Array.isArray(goal.selectedWeekdays) ? goal.selectedWeekdays : [];
+      let normalized = raw
+        .map(value => Number(value))
+        .filter(value => Number.isInteger(value) && value >= 0 && value <= 6);
+
+      if (!normalized.length) {
+        if (goal.frequency === 'Weekdays') normalized = [1, 2, 3, 4, 5];
+        else if (goal.frequency === '3x Weekly') normalized = [1, 3, 5];
+        else if (goal.frequency === 'Custom Daily Check') normalized = [0, 1, 2, 3, 4, 5, 6];
+      }
+
+      return [...new Set(normalized)].sort((a, b) => a - b);
+    }
+
+    function getGoalSelectedWeekdays(goal) {
+      return normalizeSelectedWeekdays(goal);
+    }
+
+    function formatSelectedWeekdays(days) {
+      const labels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      return (Array.isArray(days) ? days : []).map(day => labels[day]).join(', ');
+    }
+
+    function allWeekdays() {
+      return [0, 1, 2, 3, 4, 5, 6];
+    }
+
+    function syncWeekdayPicker() {
+      if (!weekdayPicker) return;
+      [...weekdayPicker.querySelectorAll('[data-weekday]')].forEach(button => {
+        const day = Number(button.dataset.weekday);
+        const active = selectedWeekdaysState.includes(day);
+        button.classList.toggle('is-active', active);
+        button.setAttribute('aria-pressed', active ? 'true' : 'false');
+      });
+    }
+
+    function syncFrequencyUi() {
+      const frequency = normalizeFrequency(goalFrequency ? goalFrequency.value : 'Daily');
+      if (goalFrequency) goalFrequency.value = frequency;
+      if (selectedDaysField) {
+        selectedDaysField.classList.toggle('module-hidden', frequency === 'One Shot');
+      }
+      if (frequency === 'Daily' && !selectedWeekdaysState.length) {
+        selectedWeekdaysState = allWeekdays();
+      }
+      if (frequency === 'Selected Days' && !selectedWeekdaysState.length) {
+        selectedWeekdaysState = [1, 3, 5];
+      }
+      syncWeekdayPicker();
+    }
+
+    function reminderModeSupportsNotification(mode) {
+      const normalized = normalizeReminderMode(mode);
+      return normalized === 'notification' || normalized === 'both';
+    }
+
+    function reminderModeSupportsAlarm(mode) {
+      const normalized = normalizeReminderMode(mode);
+      return normalized === 'alarm' || normalized === 'both';
+    }
+
+    function getReminderModeLabel(mode) {
+      const normalized = normalizeReminderMode(mode);
+      if (normalized === 'alarm') return 'Alarm';
+      if (normalized === 'both') return 'Notification + Alarm';
+      return 'Notification';
+    }
+
+    function getReminderDisplay(goal) {
+      if (!goal || !goal.reminderTime) return 'None';
+      return `${goal.reminderTime} (${getReminderModeLabel(getGoalReminderMode(goal))})`;
+    }
+
+    function syncReminderSummary() {
+      if (!reminderSummary || !reminderOptionsBtn) return;
+      const time = reminderTime ? reminderTime.value : '';
+      const mode = reminderMode ? reminderMode.value : 'notification';
+      reminderSummary.textContent = time
+        ? `${time} • ${getReminderModeLabel(mode)}`
+        : 'No reminder set.';
+      reminderOptionsBtn.textContent = time ? 'Edit Reminder' : 'Reminder Options';
+    }
+
+    function updateReminderOptionsUi() {
+      if (!reminderOptionsMode || !reminderOptionsTime || !openPhoneAlarmBtn || !reminderOptionsHelp) return;
+      const mode = normalizeReminderMode(reminderOptionsMode.value);
+      const hasTime = !!reminderOptionsTime.value;
+      const canManageAlarmAccess = isNativeAndroidRuntime() && reminderModeSupportsAlarm(mode);
+      openPhoneAlarmBtn.classList.toggle('module-hidden', !canManageAlarmAccess);
+      openPhoneAlarmBtn.textContent = 'Alarm Access';
+      if (reminderModeSupportsAlarm(mode)) {
+        if (!isNativeAndroidRuntime()) {
+          reminderOptionsHelp.textContent = 'Alarm mode only works in the Android app build. In the browser, use notification mode.';
+        } else if (!canUseNativeAlarmScheduling()) {
+          reminderOptionsHelp.textContent = 'Alarm mode needs the Android build to be synced and reinstalled so native alarm scheduling is available.';
+        } else if (!hasTime) {
+          reminderOptionsHelp.textContent = 'Choose a reminder time. Alarm mode will use the app\'s own alarm screen with sound and vibration.';
+        } else {
+          reminderOptionsHelp.textContent = 'Alarm mode uses the app\'s own alarm screen with sound and vibration. If Android blocks exact alarms, use Alarm Access to allow them.';
+        }
+      } else {
+        reminderOptionsHelp.textContent = 'Notification mode uses app reminders. In Android, native notifications can still fire while the app is not active.';
+      }
+    }
+
+    function openReminderOptionsForForm() {
+      currentReminderGoalId = null;
+      if (reminderOptionsTitle) reminderOptionsTitle.textContent = 'Reminder Options';
+      if (reminderOptionsTime) reminderOptionsTime.value = reminderTime ? reminderTime.value : '';
+      if (reminderOptionsMode) reminderOptionsMode.value = reminderMode ? normalizeReminderMode(reminderMode.value) : 'notification';
+      updateReminderOptionsUi();
+      if (reminderOptionsModal) reminderOptionsModal.classList.add('show');
+    }
+
+    function openReminderOptionsForGoal(id) {
+      const goal = state.goals.find(item => item.id === id);
+      if (!goal) return;
+      currentReminderGoalId = id;
+      if (reminderOptionsTitle) reminderOptionsTitle.textContent = `${goal.name} Reminder`;
+      if (reminderOptionsTime) reminderOptionsTime.value = goal.reminderTime || '';
+      if (reminderOptionsMode) reminderOptionsMode.value = getGoalReminderMode(goal);
+      updateReminderOptionsUi();
+      if (reminderOptionsModal) reminderOptionsModal.classList.add('show');
+    }
+
+    function closeReminderOptions() {
+      currentReminderGoalId = null;
+      if (reminderOptionsModal) reminderOptionsModal.classList.remove('show');
+    }
+
+    async function canScheduleNativeExactAlarms() {
+      if (!isNativeAndroidRuntime()) return false;
+      const plugin = getNativeAlarmBridgePlugin();
+      if (!plugin || typeof plugin.canScheduleExactAlarms !== 'function') {
+        return false;
+      }
+      try {
+        const result = await plugin.canScheduleExactAlarms();
+        return !!(result && result.granted);
+      } catch (err) {
+        console.warn('Exact alarm permission check failed', err);
+        return false;
+      }
+    }
+
+    async function openNativeAlarmSettings() {
+      if (!isNativeAndroidRuntime()) return false;
+      const plugin = getNativeAlarmBridgePlugin();
+      if (!plugin || typeof plugin.openExactAlarmSettings !== 'function') {
+        alert('The native alarm settings bridge is not available in this build yet. Run cap sync android, rebuild, and reinstall the app.');
+        return false;
+      }
+      try {
+        await plugin.openExactAlarmSettings();
+        return true;
+      } catch (err) {
+        console.warn('Alarm settings handoff failed', err);
+        alert('The alarm settings screen could not be opened on this device.');
+      }
+      return false;
+    }
+
+    async function ensureNativeAlarmAccess(interactive = false) {
+      if (!isNativeAndroidRuntime()) return false;
+      if (!canUseNativeAlarmScheduling()) {
+        if (interactive) {
+          alert('The native alarm bridge is not available in this build yet. Run cap sync android, rebuild, and reinstall the app.');
+        }
+        return false;
+      }
+      const granted = await canScheduleNativeExactAlarms();
+      if (granted) return true;
+      if (interactive) {
+        alert('Android needs Exact Alarm access for alarm mode. The settings screen will open now.');
+        await openNativeAlarmSettings();
+      }
+      return false;
+    }
+
+    async function saveReminderOptions() {
+      const nextTime = reminderOptionsTime ? reminderOptionsTime.value : '';
+      const nextMode = reminderOptionsMode ? normalizeReminderMode(reminderOptionsMode.value) : 'notification';
+
+      if (currentReminderGoalId) {
+        const goal = state.goals.find(item => item.id === currentReminderGoalId);
+        if (!goal) {
+          closeReminderOptions();
+          return;
+        }
+        goal.reminderTime = nextTime;
+        goal.reminderMode = nextTime ? nextMode : 'notification';
+        goal.updatedAt = new Date().toISOString();
+        saveState(false);
+        render();
+        syncNativeGoalReminders();
+        syncNativeGoalAlarms();
+        if (goal.reminderTime && reminderModeSupportsNotification(goal.reminderMode)) {
+          ensureReminderPermission();
+        }
+        if (goal.reminderTime && reminderModeSupportsAlarm(goal.reminderMode) && isNativeAndroidRuntime()) {
+          await ensureNativeAlarmAccess(true);
+        }
+        if (currentHubGoalId === goal.id) openGoalHub(goal.id);
+        if (currentDetailGoalId === goal.id) showGoalDetails(goal.id);
+      } else {
+        if (reminderTime) reminderTime.value = nextTime;
+        if (reminderMode) reminderMode.value = nextTime ? nextMode : 'notification';
+        syncReminderSummary();
+        if (nextTime && reminderModeSupportsAlarm(nextMode) && isNativeAndroidRuntime()) {
+          await ensureNativeAlarmAccess(true);
+        }
+      }
+
+      closeReminderOptions();
+    }
+
+    function clearReminderOptions() {
+      if (reminderOptionsTime) reminderOptionsTime.value = '';
+      if (reminderOptionsMode) reminderOptionsMode.value = 'notification';
+      updateReminderOptionsUi();
+    }
+
+    function getNotificationChannelId() {
+      return 'goal-reminders';
+    }
+
+    function sanitizeNumericId(input) {
+      const text = String(input || '');
+      let hash = 0;
+      for (let i = 0; i < text.length; i++) {
+        hash = ((hash << 5) - hash) + text.charCodeAt(i);
+        hash |= 0;
+      }
+      return Math.abs(hash % 2147483000) + 1;
+    }
+
+    function getGoalNotificationId(goalId, date) {
+      return sanitizeNumericId(`goal-reminder:${goalId}:${date}`);
+    }
+
+    function getGoalAlarmId(goalId, date) {
+      return sanitizeNumericId(`goal-alarm:${goalId}:${date}`);
+    }
+
+    function getNativeReminderPayload(goal, date) {
+      const plugin = getNativeLocalNotificationsPlugin();
+      if (!plugin || !goal || !date || !goal.reminderTime) return null;
+      const [hours, minutes] = goal.reminderTime.split(':').map(Number);
+      if (!Number.isFinite(hours) || !Number.isFinite(minutes)) return null;
+
+      const at = new Date(`${date}T00:00:00`);
+      at.setHours(hours, minutes, 0, 0);
+      if (Number.isNaN(at.getTime()) || at.getTime() <= Date.now()) return null;
+
+      return {
+        id: getGoalNotificationId(goal.id, date),
+        title: goal.name,
+        body: getReminderMessage(goal),
+        schedule: {
+          at,
+          allowWhileIdle: true
+        },
+        actionTypeId: 'GOAL_REMINDER',
+        extra: {
+          goalId: goal.id,
+          date
+        },
+        smallIcon: 'ic_launcher',
+        channelId: getNotificationChannelId(),
+        sound: NATIVE_REMINDER_SOUND
+      };
+    }
+
+    function getNativeReminderPayloads() {
+      const payloads = [];
+      const today = todayString();
+      state.goals.forEach(goal => {
+        if (!goal || goal.concludedAt || !goal.reminderTime || !reminderModeSupportsNotification(getGoalReminderMode(goal))) return;
+        buildDateRange(goal.startDate, goal.endDate).forEach(date => {
+          if (date < today) return;
+          if (!isRequiredDay(goal, date)) return;
+          const payload = getNativeReminderPayload(goal, date);
+          if (payload) payloads.push(payload);
+        });
+      });
+      return payloads;
+    }
+
+    async function ensureNativeNotificationChannel() {
+      const plugin = getNativeLocalNotificationsPlugin();
+      if (!plugin || typeof plugin.createChannel !== 'function') return;
+      try {
+        await plugin.createChannel({
+          id: getNotificationChannelId(),
+          name: 'Goal Reminders',
+          description: 'Reminders for scheduled goals',
+          sound: NATIVE_REMINDER_SOUND,
+          importance: 5,
+          visibility: 1,
+          vibration: true,
+          lights: true
+        });
+      } catch (err) {
+        console.warn('Notification channel setup skipped', err);
+      }
+    }
+
+    async function ensureNativeReminderPermission() {
+      const plugin = getNativeLocalNotificationsPlugin();
+      if (!plugin) return false;
+      try {
+        if (typeof plugin.checkPermissions === 'function') {
+          const status = await plugin.checkPermissions();
+          if (status && status.display === 'granted') return true;
+        }
+        if (typeof plugin.requestPermissions === 'function') {
+          const requested = await plugin.requestPermissions();
+          return requested && requested.display === 'granted';
+        }
+      } catch (err) {
+        console.warn('Native notification permission failed', err);
+      }
+      return false;
+    }
+
+    async function bindNativeNotificationListeners() {
+      const plugin = getNativeLocalNotificationsPlugin();
+      if (!plugin || nativeNotificationListenersBound || typeof plugin.addListener !== 'function') return;
+      try {
+        await plugin.addListener('localNotificationActionPerformed', (event) => {
+          const goalId = event && event.notification && event.notification.extra
+            ? event.notification.extra.goalId
+            : null;
+          if (!goalId) return;
+          if (typeof openGoalHub === 'function') {
+            openGoalHub(goalId);
+          }
+        });
+        nativeNotificationListenersBound = true;
+      } catch (err) {
+        console.warn('Native notification listener setup skipped', err);
+      }
+    }
+
+    async function syncNativeGoalReminders() {
+      if (!isNativeAppRuntime()) return;
+      const plugin = getNativeLocalNotificationsPlugin();
+      if (!plugin) return;
+
+      const granted = await ensureNativeReminderPermission();
+      if (!granted) return;
+
+      await ensureNativeNotificationChannel();
+      await bindNativeNotificationListeners();
+
+      try {
+        const existing = typeof plugin.getPending === 'function'
+          ? await plugin.getPending()
+          : { notifications: [] };
+        const pending = Array.isArray(existing && existing.notifications) ? existing.notifications : [];
+        const idsToCancel = pending
+          .filter(notification => notification && notification.id && notification.channelId === getNotificationChannelId())
+          .map(notification => ({ id: notification.id }));
+        if (idsToCancel.length && typeof plugin.cancel === 'function') {
+          await plugin.cancel({ notifications: idsToCancel });
+        }
+      } catch (err) {
+        console.warn('Native notification cleanup skipped', err);
+      }
+
+      const notifications = getNativeReminderPayloads();
+      if (!notifications.length) return;
+
+      try {
+        if (typeof plugin.schedule === 'function') {
+          await plugin.schedule({ notifications });
+        }
+      } catch (err) {
+        console.warn('Native notification scheduling failed', err);
+      }
+    }
+
+    function getNativeAlarmPayload(goal, date) {
+      const plugin = getNativeAlarmBridgePlugin();
+      if (!plugin || !goal || !date || !goal.reminderTime) return null;
+      const [hours, minutes] = goal.reminderTime.split(':').map(Number);
+      if (!Number.isFinite(hours) || !Number.isFinite(minutes)) return null;
+
+      const at = new Date(`${date}T00:00:00`);
+      at.setHours(hours, minutes, 0, 0);
+      if (Number.isNaN(at.getTime()) || at.getTime() <= Date.now()) return null;
+
+      return {
+        id: getGoalAlarmId(goal.id, date),
+        goalId: goal.id,
+        title: goal.name,
+        body: getReminderMessage(goal),
+        date,
+        at: at.getTime()
+      };
+    }
+
+    function getNativeAlarmPayloads() {
+      const payloads = [];
+      const today = todayString();
+      state.goals.forEach(goal => {
+        if (!goal || goal.concludedAt || !goal.reminderTime || !reminderModeSupportsAlarm(getGoalReminderMode(goal))) return;
+        buildDateRange(goal.startDate, goal.endDate).forEach(date => {
+          if (date < today) return;
+          if (!isRequiredDay(goal, date)) return;
+          const payload = getNativeAlarmPayload(goal, date);
+          if (payload) payloads.push(payload);
+        });
+      });
+      return payloads;
+    }
+
+    async function syncNativeGoalAlarms() {
+      if (!isNativeAndroidRuntime()) return;
+      const plugin = getNativeAlarmBridgePlugin();
+      if (!plugin || typeof plugin.syncAlarms !== 'function' || typeof plugin.cancelAlarms !== 'function') return;
+
+      const payloads = getNativeAlarmPayloads();
+
+      try {
+        if (!payloads.length) {
+          await plugin.syncAlarms({ alarms: [] });
+          return;
+        }
+
+        const granted = await canScheduleNativeExactAlarms();
+        if (!granted) {
+          console.warn('Exact alarm access is not granted; native goal alarms were not scheduled.');
+          await plugin.syncAlarms({ alarms: [] });
+          return;
+        }
+
+        await plugin.syncAlarms({ alarms: payloads });
+      } catch (err) {
+        console.warn('Native alarm scheduling failed', err);
+      }
     }
 
     function hideReminderToast() {
@@ -2864,7 +3900,6 @@
           <div class="muted">${escapeHtml(getReminderMessage(goal))}</div>
           <div class="reminder-toast-actions">
             <button class="btn-primary" type="button" data-reminder-action="open-goal" data-goal-id="${goal.id}">Open Goal</button>
-            ${goal.email ? `<button class="btn-secondary" type="button" data-reminder-action="email" data-goal-id="${goal.id}">Email</button>` : ''}
             <button class="btn-secondary" type="button" data-reminder-action="dismiss">Dismiss</button>
           </div>
         </div>
@@ -2907,11 +3942,13 @@
       const today = todayString();
       const currentMinutes = (now.getHours() * 60) + now.getMinutes();
       const reminderLog = getReminderLog();
+      const useNativeReminders = isNativeAppRuntime() && !!getNativeLocalNotificationsPlugin();
       let changed = false;
 
       state.goals.forEach(goal => {
         if (!goal || goal.concludedAt) return;
         if (!goal.reminderTime) return;
+        if (!reminderModeSupportsNotification(getGoalReminderMode(goal))) return;
         if (today < goal.startDate || today > goal.endDate) return;
         if (!isRequiredDay(goal, today)) return;
 
@@ -2926,8 +3963,10 @@
 
         reminderLog[reminderKey] = new Date().toISOString();
         changed = true;
-        showReminderToast(goal);
-        showBrowserReminder(goal);
+        if (!useNativeReminders) {
+          showReminderToast(goal);
+          showBrowserReminder(goal);
+        }
       });
 
       if (changed) saveReminderLog(reminderLog);
@@ -2951,6 +3990,15 @@
       }
     }
 
+    function playHoverSound(target) {
+      const now = Date.now();
+      if (target === lastHoverSoundTarget && now - lastHoverSoundAt < 250) return;
+      if (now - lastHoverSoundAt < 80) return;
+      lastHoverSoundTarget = target;
+      lastHoverSoundAt = now;
+      playSound('hover');
+    }
+
     function startCompletionGif() {
       if (!completionGif) return;
       completionGif.src = '';
@@ -2962,9 +4010,41 @@
       completionGif.src = '';
     }
 
+    function isLocalDevelopmentHost() {
+      const host = String(window.location.hostname || '').toLowerCase();
+      return host === 'localhost' || host === '127.0.0.1' || host === '[::1]';
+    }
+
+    async function clearLocalDevelopmentCaches() {
+      if (!('caches' in window)) return;
+      try {
+        const keys = await caches.keys();
+        await Promise.all(keys
+          .filter(key => String(key).startsWith('goal-tracker-pwa-'))
+          .map(key => caches.delete(key)));
+      } catch (err) {
+        console.warn('Local cache cleanup skipped', err);
+      }
+    }
+
+    async function unregisterLocalServiceWorkers() {
+      if (!('serviceWorker' in navigator)) return;
+      try {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(registrations.map(registration => registration.unregister()));
+      } catch (err) {
+        console.warn('Local service worker cleanup skipped', err);
+      }
+    }
+
     function registerServiceWorker() {
       if (!('serviceWorker' in navigator)) return;
       window.addEventListener('load', () => {
+        if (isLocalDevelopmentHost()) {
+          unregisterLocalServiceWorkers();
+          clearLocalDevelopmentCaches();
+          return;
+        }
         navigator.serviceWorker.register('./sw.js').catch(err => {
           console.warn('Service worker registration failed', err);
         });
@@ -2999,13 +4079,18 @@
       if (!template) return;
 
       goalName.value = template.name;
-      goalFrequency.value = template.frequency;
+      goalFrequency.value = normalizeFrequency(template.frequency);
+      selectedWeekdaysState = Array.isArray(template.selectedWeekdays) ? [...template.selectedWeekdays] : [];
       performTime.value = template.bestTime;
       estimatedHours.value = String(template.hours);
       estimatedMinutes.value = String(template.minutes);
       goalColor.value = isValidHexColor(template.color) ? template.color : DEFAULT_GOAL_COLORS[0];
+      syncGoalColorHexFromPicker();
+      if (goalColorTone) goalColorTone.value = '100';
       goalIcon.value = getGoalIconData(template.icon) ? template.icon : '';
       syncGoalIconPicker();
+      syncFrequencyUi();
+      updateGoalPreview();
 
       if (!startDate.value) {
         startDate.value = todayString();
@@ -3348,7 +4433,11 @@
       state.goals.forEach((goal, index) => {
         goal.color = getGoalColor(goal, index);
         goal.goalLink = normalizeUrl(goal.goalLink);
+        delete goal.phone;
         goal.icon = getGoalIconData(goal.icon) ? goal.icon : '';
+        goal.frequency = normalizeFrequency(goal.frequency);
+        goal.selectedWeekdays = getGoalSelectedWeekdays(goal);
+        goal.reminderMode = normalizeReminderMode(goal.reminderMode);
         goal.priority = Number.isFinite(Number(goal.priority)) ? Number(goal.priority) : 5;
         goal.concludedAt = goal.concludedAt || null;
         ensureTimeHistory(goal);
@@ -3359,7 +4448,11 @@
       state.archivedGoals.forEach((goal, index) => {
         goal.color = getGoalColor(goal, index);
         goal.goalLink = normalizeUrl(goal.goalLink);
+        delete goal.phone;
         goal.icon = getGoalIconData(goal.icon) ? goal.icon : '';
+        goal.frequency = normalizeFrequency(goal.frequency);
+        goal.selectedWeekdays = getGoalSelectedWeekdays(goal);
+        goal.reminderMode = normalizeReminderMode(goal.reminderMode);
         goal.priority = Number.isFinite(Number(goal.priority)) ? Number(goal.priority) : 5;
         goal.concludedAt = goal.concludedAt || null;
         ensureTimeHistory(goal);
@@ -3484,6 +4577,8 @@
       }
       saveState(false);
       render();
+      syncNativeGoalReminders();
+      syncNativeGoalAlarms();
     }
 
     function clearTodayMark(id) {
@@ -3515,6 +4610,8 @@
       goal.updatedAt = new Date().toISOString();
       saveState(false);
       render();
+      syncNativeGoalReminders();
+      syncNativeGoalAlarms();
     }
 
     function getTrackingDates(goal) {
@@ -3546,9 +4643,14 @@
       if (isOneShotGoal(goal)) return dateStr === goal.endDate;
       const date = new Date(dateStr + 'T00:00:00');
       const day = date.getDay();
-      if (goal.frequency === 'Daily' || goal.frequency === 'Custom Daily Check') return true;
-      if (goal.frequency === 'Weekdays') return day >= 1 && day <= 5;
-      if (goal.frequency === '3x Weekly') return true;
+      const frequency = normalizeFrequency(goal && goal.frequency);
+      if (frequency === 'Daily') {
+        const selectedDays = getGoalSelectedWeekdays(goal);
+        return selectedDays.length ? selectedDays.includes(day) : true;
+      }
+      if (frequency === 'Selected Days') {
+        return getGoalSelectedWeekdays(goal).includes(day);
+      }
       return true;
     }
 
@@ -3568,42 +4670,6 @@
           rate: completionDate ? 100 : 0,
           missStreak: completionDate ? 0 : (isExpired ? 1 : 0),
           status: completionDate ? 'green' : (isExpired ? 'red' : 'yellow')
-        };
-      }
-
-      if (goal.frequency === '3x Weekly') {
-        const grouped = {};
-        for (const date of dates) {
-          const dt = new Date(date + 'T00:00:00');
-          const year = dt.getFullYear();
-          const firstJan = new Date(year, 0, 1);
-          const days = Math.floor((dt - firstJan) / 86400000);
-          const week = Math.ceil((days + firstJan.getDay() + 1) / 7);
-          const key = `${year}-W${week}`;
-          if (!grouped[key]) grouped[key] = [];
-          grouped[key].push(date);
-        }
-
-        let targetCount = 0;
-        let completedCount = 0;
-        let missedEquivalent = 0;
-
-        Object.values(grouped).forEach(weekDates => {
-          targetCount += 3;
-          const completions = weekDates.filter(d => history[d] === 'complete').length;
-          completedCount += Math.min(completions, 3);
-          missedEquivalent += Math.max(0, 3 - Math.min(completions, 3));
-        });
-
-        const rate = targetCount ? Math.round((completedCount / targetCount) * 100) : 0;
-        const missStreak = getRecentMissStreak(goal, dates);
-        return {
-          requiredCount: targetCount,
-          completedCount,
-          incompleteCount: missedEquivalent,
-          rate,
-          missStreak,
-          status: determineLight(rate, missStreak)
         };
       }
 
@@ -3649,6 +4715,8 @@
       state.goals = state.goals.filter(g => g.id !== id);
       saveState();
       render();
+      syncNativeGoalReminders();
+      syncNativeGoalAlarms();
     }
 
     function archiveGoal(id) {
@@ -3664,6 +4732,8 @@
       closeGoalDashboard();
       saveState();
       render();
+      syncNativeGoalReminders();
+      syncNativeGoalAlarms();
       openTrackingModal();
     }
 
@@ -3677,23 +4747,29 @@
     function editGoal(id) {
       const goal = state.goals.find(g => g.id === id);
       if (!goal) return;
+      currentEditingGoalId = id;
       goalName.value = goal.name;
       startDate.value = goal.startDate;
       endDate.value = goal.endDate;
       performTime.value = goal.bestTime;
       reminderTime.value = goal.reminderTime || '';
-      emailReminder.value = goal.email || '';
+      reminderMode.value = getGoalReminderMode(goal);
       goalLink.value = goal.goalLink || '';
       estimatedHours.value = goal.estimatedHours || '';
       estimatedMinutes.value = goal.estimatedMinutes || '';
-      goalFrequency.value = goal.frequency || 'Daily';
+      goalFrequency.value = normalizeFrequency(goal.frequency || 'Daily');
+      selectedWeekdaysState = getGoalSelectedWeekdays(goal);
       goalColor.value = getGoalColor(goal);
+      syncGoalColorHexFromPicker();
+      if (goalColorTone) goalColorTone.value = '100';
       goalIcon.value = getGoalIconData(goal.icon) ? goal.icon : '';
       priorityLevel.value = String(Number.isFinite(Number(goal.priority)) ? Number(goal.priority) : 5);
       syncGoalIconPicker();
+      syncFrequencyUi();
+      updateGoalPreview();
+      syncReminderSummary();
       syncPriorityModeUi();
-      deleteGoal(id);
-      openGoalCreation();
+      showGoalCreationModal();
       setWizardStep(1);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -3715,8 +4791,9 @@
         ${ensureSettings().priorityMode ? `<div class="legend-item"><strong>Priority:</strong> ${Number.isFinite(Number(goal.priority)) ? Number(goal.priority) : 5}</div>` : ''}
         <div class="legend-item"><strong>Best Time:</strong> ${escapeHtml(goal.bestTime)}</div>
         <div class="legend-item"><strong>Estimated Duration:</strong> ${goal.estimatedHours || 0}h ${goal.estimatedMinutes || 0}m</div>
-        <div class="legend-item"><strong>Reminder Time:</strong> ${goal.reminderTime ? escapeHtml(goal.reminderTime) : 'None'}</div>
-        <div class="legend-item"><strong>Frequency:</strong> ${escapeHtml(goal.frequency)}</div>
+        <div class="legend-item"><strong>Reminder:</strong> ${escapeHtml(getReminderDisplay(goal))}</div>
+        <div class="legend-item"><strong>Frequency:</strong> ${escapeHtml(normalizeFrequency(goal.frequency))}</div>
+        ${normalizeFrequency(goal.frequency) !== 'One Shot' ? `<div class="legend-item"><strong>Days:</strong> ${escapeHtml(formatSelectedWeekdays(getGoalSelectedWeekdays(goal).length ? getGoalSelectedWeekdays(goal) : allWeekdays()))}</div>` : ''}
         <div class="legend-item"><strong>Goal Resource Link:</strong> ${goal.goalLink ? `<a href="${escapeHtml(goal.goalLink)}" target="_blank" rel="noopener" style="color:var(--accent);">Open</a>` : 'None'}</div>
         <div class="legend-item"><strong>Accumulated Time:</strong> ${formatDuration(getGoalTotalSeconds(goal))}</div>
         <div class="legend-item"><strong>Redemptions:</strong> ${redemptionCount}</div>
@@ -3732,7 +4809,6 @@
         goalDetailsModal.classList.remove('show');
         deleteGoal(id);
       };
-
       syncPriorityModeUi();
       
       goalDetailsModal.classList.add('show');
@@ -3765,23 +4841,23 @@
       currentHubGoalId = id;
       goalHubTitle.textContent = goal.name;
       goalHubContent.innerHTML = `
-        <div class="legend-item"><strong>Today:</strong> ${labelForMark(todayMark)}</div>
-        <div class="legend-item"><strong>Status:</strong> ${stats.status}</div>
-        ${ensureSettings().priorityMode ? `<div class="legend-item"><strong>Priority:</strong> ${getGoalPriority(goal)}</div>` : ''}
-        <div class="legend-item"><strong>Completion:</strong> ${stats.completedCount}/${stats.requiredCount} (${stats.rate}%)</div>
-        <div class="legend-item"><strong>Time:</strong> ${formatDuration(getGoalTotalSeconds(goal))}</div>
-        <div class="legend-item"><strong>Miss streak:</strong> ${stats.missStreak}</div>
-        ${recoveryToday ? `<div class="legend-item"><strong>Recovery Today:</strong> ${escapeHtml(recoveryToday.title || recoveryToday.challenge || 'Assigned')}</div>` : ''}
+        <div class="goal-hub-summary">
+          <div class="legend-item"><strong>Complete Today:</strong> ${todayMark === 'complete' ? 'Yes' : 'No'}</div>
+          <div class="legend-item"><strong>Status:</strong> ${stats.status}</div>
+          <div class="legend-item"><strong>Time:</strong> ${formatDuration(getGoalTotalSeconds(goal))}</div>
+        </div>
       `;
       goalHubCompleteBtn.classList.toggle('is-toggle-complete', todayMark !== 'complete');
       goalHubCompleteBtn.classList.toggle('is-toggle-undo', todayMark === 'complete');
       goalHubCompleteIcon.innerHTML = todayMark === 'complete' ? getUiIconMarkup('undo') : getUiIconMarkup('check');
       goalHubCompleteLabel.textContent = todayMark === 'complete' ? 'Undo' : 'Did It';
+      goalHubOpenedAt = Date.now();
       goalHubModal.classList.add('show');
     }
 
     function closeGoalHub() {
       currentHubGoalId = null;
+      goalHubOpenedAt = 0;
       goalHubModal.classList.remove('show');
     }
 
@@ -3932,7 +5008,7 @@
 
       goalDashboardTitle.textContent = goal.name;
       goalDashboardContent.innerHTML = `
-        <p class="muted">${formatDate(goal.startDate)} to ${formatDate(goal.endDate)} - ${escapeHtml(goal.frequency || 'Daily')}</p>
+        <p class="muted">${formatDate(goal.startDate)} to ${formatDate(goal.endDate)} - ${escapeHtml(normalizeFrequency(goal.frequency) || 'Daily')}</p>
         <div class="goal-dashboard-summary">
           <div class="goal-dashboard-stat"><strong>${stats.rate}%</strong><span>Completion</span></div>
           <div class="goal-dashboard-stat"><strong>${stats.completedCount}</strong><span>Completed Days</span></div>
@@ -3941,9 +5017,10 @@
           <div class="goal-dashboard-stat"><strong>${formatDuration(totalSeconds)}</strong><span>Total Time</span></div>
         </div>
         <div class="goal-dashboard-meta-list">
-          <div class="legend-item"><strong>Frequency:</strong> ${escapeHtml(goal.frequency || 'Daily')}</div>
+          <div class="legend-item"><strong>Frequency:</strong> ${escapeHtml(normalizeFrequency(goal.frequency) || 'Daily')}</div>
+          ${normalizeFrequency(goal.frequency) !== 'One Shot' ? `<div class="legend-item"><strong>Days:</strong> ${escapeHtml(formatSelectedWeekdays(getGoalSelectedWeekdays(goal).length ? getGoalSelectedWeekdays(goal) : allWeekdays()))}</div>` : ''}
           <div class="legend-item"><strong>Best Time:</strong> ${escapeHtml(goal.bestTime || 'Flexible')}</div>
-          <div class="legend-item"><strong>Reminder:</strong> ${goal.reminderTime ? escapeHtml(goal.reminderTime) : 'None'}</div>
+          <div class="legend-item"><strong>Reminder:</strong> ${escapeHtml(getReminderDisplay(goal))}</div>
           <div class="legend-item"><strong>Resource:</strong> ${goal.goalLink ? 'Saved' : 'None'}</div>
           ${source === 'active' && isGoalAwaitingConclusion(goal) ? `<div class="legend-item"><strong>Status:</strong> Final date has passed. Confirm the goal end to close it out.</div>` : ''}
           ${source === 'archived' ? `<div class="legend-item"><strong>Archived:</strong> ${formatDate(String(goal.archivedAt || '').slice(0, 10)) || 'Saved'}</div>` : ''}
@@ -4153,6 +5230,7 @@
             data-fragment-action="add"
             role="button"
             tabindex="0"
+            onclick="openNewGoalCreationFromEmptyTile()"
             aria-label="Add goal"
             title="Add goal"
           >
@@ -4172,6 +5250,7 @@
           })()
         : null;
       const fragments = [];
+      const icons = [];
 
       for (let i = 0; i < 4; i++) {
         const goal = goalsBySlot[i];
@@ -4189,7 +5268,13 @@
             isFinishedToday ? 'is-finished' : '',
             isPriorityFocus ? 'is-priority-focus' : ''
           ].filter(Boolean).join(' ');
-          const label = escapeHtml(goal.name.length > 18 ? `${goal.name.slice(0, 18)}...` : goal.name);
+          if (goalIconData) {
+            icons.push(`
+              <span class="progress-icon-anchor fragment-${fragmentNumber}" aria-hidden="true">
+                <span class="segment-symbol goal-icon">${getGoalIconMarkup(goal.icon)}</span>
+              </span>
+            `);
+          }
           fragments.push(`
             <button
               class="${segmentClasses}"
@@ -4200,9 +5285,7 @@
               aria-label="Open ${escapeHtml(goal.name)}"
               title="${escapeHtml(goal.name)}"
             >
-              <span class="segment-core">
-                ${goalIconData ? `<span class="segment-center-icon"><span class="segment-symbol goal-icon">${getGoalIconMarkup(goal.icon)}</span></span>` : ''}
-              </span>
+              <span class="segment-core"></span>
             </button>
           `);
         } else if (state.goals.length < 4) {
@@ -4211,6 +5294,11 @@
             fragments.push('<div class="progress-segment is-empty" aria-hidden="true"></div>');
             continue;
           }
+          icons.push(`
+            <span class="progress-icon-anchor fragment-${fragmentNumber}" aria-hidden="true">
+              <span class="segment-symbol">+</span>
+            </span>
+          `);
           fragments.push(`
             <button
               class="progress-segment fragment-${fragmentNumber} is-empty"
@@ -4219,9 +5307,7 @@
               aria-label="Add goal"
               title="Add goal"
             >
-              <span class="segment-core">
-                <span class="segment-symbol">+</span>
-              </span>
+              <span class="segment-core"></span>
             </button>
           `);
         } else {
@@ -4229,7 +5315,7 @@
         }
       }
 
-      let html = `<div class="progress-square">${fragments.join('')}</div>`;
+      let html = `<div class="progress-square">${fragments.join('')}<div class="progress-icon-layer">${icons.join('')}</div></div>`;
       const activeGoals = goalsBySlot.filter(Boolean);
       const allCompleted = activeGoals.length > 0 && activeGoals.every(g => g.history && g.history[todayString()] === 'complete');
       if (allCompleted) {
@@ -4246,6 +5332,15 @@
       if (!point) return null;
 
       const rect = square.getBoundingClientRect();
+      if (
+        point.clientX < rect.left ||
+        point.clientX > rect.right ||
+        point.clientY < rect.top ||
+        point.clientY > rect.bottom
+      ) {
+        return null;
+      }
+
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height / 2;
       const dx = point.clientX - centerX;
@@ -4271,31 +5366,51 @@
     }
 
     function getProgressSquareActionTarget(event) {
+      if (event && event.type === 'keydown') {
+        return event.target.closest('[data-fragment-action]');
+      }
+
+      const fragmentNumber = getSquareFragmentNumberFromPoint(event);
+      if (fragmentNumber && progressSquareContainer) {
+        const geometricTarget = progressSquareContainer.querySelector(`.progress-segment.fragment-${fragmentNumber}[data-fragment-action]`);
+        if (geometricTarget) return geometricTarget;
+      }
+
       const directTarget = event.target.closest('[data-fragment-action]');
       if (directTarget) return directTarget;
 
-      const fragmentNumber = getSquareFragmentNumberFromPoint(event);
+      const point = getEventClientPoint(event);
+      if (point) {
+        const pointTarget = document.elementFromPoint(point.clientX, point.clientY);
+        const resolvedTarget = pointTarget && pointTarget.closest
+          ? pointTarget.closest('[data-fragment-action]')
+          : null;
+        if (resolvedTarget) return resolvedTarget;
+      }
+
       if (!fragmentNumber || !progressSquareContainer) return null;
       return progressSquareContainer.querySelector(`.progress-segment.fragment-${fragmentNumber}[data-fragment-action]`);
     }
 
     function handleProgressSquareClick(event) {
-      const actionTarget = getProgressSquareActionTarget(event);
-      if (!actionTarget) {
-        if (!state.goals.length) {
-          playSound('select');
-          openGoalCreation();
-        }
+      if (!state.goals.length) {
+        openNewGoalCreationFromEmptyTile();
         return;
       }
-      playSound('select');
+
+      const actionTarget = getProgressSquareActionTarget(event);
+      if (!actionTarget) {
+        return;
+      }
       const action = actionTarget.dataset.fragmentAction;
       if (action === 'add') {
-        openGoalCreation();
+        openNewGoalCreation();
+        playSound('select');
         return;
       }
       if (action === 'goal' && actionTarget.dataset.goalId) {
         openGoalHub(actionTarget.dataset.goalId);
+        playSound('select');
       }
     }
 
@@ -4349,8 +5464,8 @@
               <span class="chip">End: ${formatDate(goal.endDate)}</span>
               <span class="chip">Best Time: ${escapeHtml(goal.bestTime)}</span>
               <span class="chip">Est: ${goal.estimatedHours || 0}h ${goal.estimatedMinutes || 0}m</span>
-              <span class="chip">Reminder: ${goal.reminderTime ? escapeHtml(goal.reminderTime) : 'None'}</span>
-              <span class="chip">Frequency: ${escapeHtml(goal.frequency)}</span>
+              <span class="chip">Reminder: ${escapeHtml(getReminderDisplay(goal))}</span>
+              <span class="chip">Frequency: ${escapeHtml(normalizeFrequency(goal.frequency))}</span>
               <span class="chip">Resource: ${goal.goalLink ? 'Saved' : 'None'}</span>
             </div>
 
@@ -4407,7 +5522,7 @@
           `);
         } else if (state.goals.length < 5 && i === state.goals.length) {
           tiles.push(`
-            <button class="goal-tile add-tile" type="button" onclick="openGoalCreation()">
+            <button class="goal-tile add-tile" type="button" onclick="openNewGoalCreation()">
               <div class="goal-tile-plus">+</div>
               <div class="goal-tile-meta">Add Goal</div>
             </button>
@@ -4460,6 +5575,8 @@
       applyAutomaticMisses();
       render();
       maybeTriggerReminders();
+      syncNativeGoalReminders();
+      syncNativeGoalAlarms();
       if (showRecoveryPrompt) {
         maybeShowAutomaticRecoveryPrompt();
       }
@@ -4473,12 +5590,17 @@
     }
 
     function setWizardStep(step) {
-      goalWizardStep1.classList.toggle('step-hidden', step !== 1);
-      goalWizardStep2.classList.toggle('step-hidden', step !== 2);
-      wizardBackBtn.classList.toggle('module-hidden', step === 1);
-      wizardNextBtn.classList.toggle('module-hidden', step !== 1);
-      addGoalBtn.classList.toggle('module-hidden', step !== 2);
-      wizardProgress.textContent = `Step ${step} of 2`;
+      const totalSteps = 5;
+      const normalizedStep = Math.max(1, Math.min(totalSteps, Number(step) || 1));
+      [goalWizardStep1, goalWizardStep2, goalWizardStep3, goalWizardStep4, goalWizardStep5].forEach((stepEl, index) => {
+        if (stepEl) stepEl.classList.toggle('step-hidden', normalizedStep !== index + 1);
+      });
+      wizardBackBtn.classList.toggle('module-hidden', normalizedStep === 1);
+      wizardNextBtn.classList.toggle('module-hidden', normalizedStep === totalSteps);
+      addGoalBtn.classList.toggle('module-hidden', normalizedStep !== totalSteps);
+      const labels = ['Name', 'Appearance', 'Timer', 'Dates', 'Links'];
+      wizardProgress.textContent = labels[normalizedStep - 1];
+      goalCreationModal.dataset.wizardStep = String(normalizedStep);
     }
 
     function validateStep1() {
@@ -4491,27 +5613,74 @@
       return true;
     }
 
+    function validateCurrentWizardStep() {
+      const step = Number(goalCreationModal.dataset.wizardStep || 1);
+      if (step === 1) return validateStep1();
+      if (step === 3) {
+        const hours = Number(estimatedHours.value || 0);
+        const minutes = Number(estimatedMinutes.value || 0);
+        if (hours === 0 && minutes === 0) {
+          alert('Please enter an estimated duration in hours or minutes.');
+          estimatedMinutes.focus();
+          return false;
+        }
+      }
+      if (step === 4) {
+        const frequency = normalizeFrequency(goalFrequency.value);
+        if (frequency !== 'One Shot' && !selectedWeekdaysState.length) {
+          alert('Choose at least one weekday for this goal.');
+          return false;
+        }
+        if (!startDate.value || !endDate.value) {
+          alert('Please choose both a beginning date and an end date.');
+          return false;
+        }
+        if (new Date(endDate.value) < new Date(startDate.value)) {
+          alert('The end date cannot be earlier than the start date.');
+          return false;
+        }
+      }
+      return true;
+    }
+
     function nextWizardStep() {
-      if (!validateStep1()) return;
-      setWizardStep(2);
+      if (!validateCurrentWizardStep()) return;
+      setWizardStep(Number(goalCreationModal.dataset.wizardStep || 1) + 1);
     }
 
     function previousWizardStep() {
-      setWizardStep(1);
+      setWizardStep(Number(goalCreationModal.dataset.wizardStep || 1) - 1);
     }
 
     function showApp() {
       if (appContent) appContent.classList.remove('module-hidden');
     }
 
-    function openGoalCreation() {
+    function showGoalCreationModal() {
       showApp();
       setWizardStep(1);
+      goalCreationOpenedAt = Date.now();
       goalCreationModal.classList.add('show');
+    }
+
+    function openNewGoalCreation() {
+      currentEditingGoalId = null;
+      resetForm();
+      showGoalCreationModal();
     }
 
     function closeGoalCreation() {
       goalCreationModal.classList.remove('show');
+      currentEditingGoalId = null;
+      resetForm();
+    }
+
+    function openNewGoalCreationFromEmptyTile() {
+      const now = Date.now();
+      if (now - lastEmptyGoalOpenAt < 500) return;
+      lastEmptyGoalOpenAt = now;
+      openNewGoalCreation();
+      playSound('select');
     }
 
     function resetForm() {
@@ -4520,24 +5689,34 @@
       endDate.value = '';
       performTime.value = 'Morning';
       reminderTime.value = '';
-      emailReminder.value = '';
+      reminderMode.value = 'notification';
       goalLink.value = '';
       estimatedHours.value = '';
       estimatedMinutes.value = '';
       goalFrequency.value = 'Daily';
+      selectedWeekdaysState = allWeekdays();
       goalColor.value = DEFAULT_GOAL_COLORS[state.goals.length % DEFAULT_GOAL_COLORS.length];
+      syncGoalColorHexFromPicker();
+      if (goalColorTone) goalColorTone.value = '100';
       goalIcon.value = '';
       priorityLevel.value = '5';
       if (randomGoalNote) {
         randomGoalNote.textContent = 'Generate a starter idea for writing, workouts, cleaning, and similar light routines.';
       }
       syncGoalIconPicker();
+      syncFrequencyUi();
+      updateGoalPreview();
+      syncReminderSummary();
       syncPriorityModeUi();
       setWizardStep(1);
     }
 
     function addGoal() {
-      if (state.goals.length >= 4) {
+      const editingGoal = currentEditingGoalId
+        ? state.goals.find(goal => goal.id === currentEditingGoalId)
+        : null;
+
+      if (!editingGoal && state.goals.length >= 4) {
         alert('You can only have up to 4 active goals at once.');
         return;
       }
@@ -4547,12 +5726,13 @@
       const end = endDate.value;
       const bestTime = performTime.value;
       const remind = reminderTime.value;
-      const email = emailReminder.value.trim();
+      const remindMode = remind ? normalizeReminderMode(reminderMode.value) : 'notification';
       const link = normalizeUrl(goalLink.value);
       const hours = Number(estimatedHours.value || 0);
       const minutes = Number(estimatedMinutes.value || 0);
-      const frequency = goalFrequency.value;
-      const color = isValidHexColor(goalColor.value) ? goalColor.value : DEFAULT_GOAL_COLORS[state.goals.length % DEFAULT_GOAL_COLORS.length];
+      const frequency = normalizeFrequency(goalFrequency.value);
+      const selectedWeekdays = frequency === 'One Shot' ? [] : [...selectedWeekdaysState].sort((a, b) => a - b);
+      const color = getCurrentGoalColor();
       const icon = getGoalIconData(goalIcon.value) ? goalIcon.value : '';
       const priority = ensureSettings().priorityMode ? Number(priorityLevel.value || 5) : null;
 
@@ -4564,39 +5744,46 @@
 
       if (!start || !end) {
         alert('Please choose both a beginning date and an end date.');
-        setWizardStep(2);
+        setWizardStep(4);
         return;
       }
 
       if (new Date(end) < new Date(start)) {
         alert('The end date cannot be earlier than the start date. Time travel is currently out of scope.');
-        setWizardStep(2);
+        setWizardStep(4);
         return;
       }
 
       if (hours === 0 && minutes === 0) {
         alert('Please enter an estimated duration in hours or minutes.');
-        setWizardStep(2);
+        setWizardStep(3);
         return;
       }
 
-      if (ensureSettings().priorityMode && isPriorityTaken(priority)) {
+      if (frequency !== 'One Shot' && !selectedWeekdays.length) {
+        alert('Choose at least one weekday for this goal.');
+        setWizardStep(4);
+        return;
+      }
+
+      if (ensureSettings().priorityMode && isPriorityTaken(priority, editingGoal ? editingGoal.id : null)) {
         alert(`Priority ${priority} is already in use. Each goal needs a distinct priority number.`);
-        setWizardStep(1);
+        setWizardStep(2);
         priorityLevel.focus();
         return;
       }
 
-      const goal = {
+      const goalData = {
         id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
         name,
         startDate: start,
         endDate: end,
         bestTime,
         reminderTime: remind,
-        email,
+        reminderMode: remindMode,
         goalLink: link,
         frequency,
+        selectedWeekdays,
         color,
         icon,
         priority,
@@ -4610,14 +5797,37 @@
         updatedAt: new Date().toISOString()
       };
 
-      state.goals.push(goal);
+      if (editingGoal) {
+        Object.assign(editingGoal, {
+          name,
+          startDate: start,
+          endDate: end,
+          bestTime,
+          reminderTime: remind,
+          reminderMode: remindMode,
+          goalLink: link,
+          frequency,
+          selectedWeekdays,
+          color,
+          icon,
+          priority,
+          estimatedHours: hours,
+          estimatedMinutes: minutes,
+          updatedAt: new Date().toISOString()
+        });
+      } else {
+        state.goals.push(goalData);
+      }
       applyAutomaticMisses();
       saveState(false);
       render();
       maybeTriggerReminders();
-      if (remind) {
+      syncNativeGoalReminders();
+      syncNativeGoalAlarms();
+      if (remind && reminderModeSupportsNotification(remindMode)) {
         ensureReminderPermission();
       }
+      currentEditingGoalId = null;
       resetForm();
       closeGoalCreation();
     }
@@ -4631,11 +5841,13 @@
           endDate: futureDate(14),
           bestTime: 'Morning',
           reminderTime: '08:00',
+          reminderMode: 'notification',
           email: '',
           goalLink: '',
           estimatedHours: 0,
           estimatedMinutes: 20,
           frequency: 'Daily',
+          selectedWeekdays: [],
           color: DEFAULT_GOAL_COLORS[0],
           icon: 'heart',
           priority: 8,
@@ -4657,11 +5869,13 @@
           endDate: futureDate(21),
           bestTime: 'Evening',
           reminderTime: '19:00',
+          reminderMode: 'notification',
           email: '',
           goalLink: '',
           estimatedHours: 0,
           estimatedMinutes: 30,
-          frequency: 'Weekdays',
+          frequency: 'Selected Days',
+          selectedWeekdays: [1, 2, 3, 4, 5],
           color: DEFAULT_GOAL_COLORS[1],
           icon: 'dumbbell',
           priority: 6,
@@ -4678,6 +5892,8 @@
       applyAutomaticMisses();
       saveState();
       render();
+      syncNativeGoalReminders();
+      syncNativeGoalAlarms();
     }
 
     function futureDate(daysAhead) {
@@ -4813,6 +6029,31 @@
       renderWeeklySummary();
     }
 
+    function getHoverSoundTarget(event) {
+      if (!event || event.pointerType === 'touch') return null;
+      const selector = [
+        'button:not(:disabled)',
+        'a[href]',
+        'select:not(:disabled)',
+        'input:not(:disabled)',
+        'textarea:not(:disabled)',
+        '[role="button"]',
+        '[data-fragment-action]',
+        '.goal-tile',
+        '.icon-choice',
+        '.weekday-chip'
+      ].join(',');
+      const target = event.target && event.target.closest ? event.target.closest(selector) : null;
+      if (!target || target.closest('.module-hidden')) return null;
+      if (event.relatedTarget && target.contains(event.relatedTarget)) return null;
+      return target;
+    }
+
+    document.addEventListener('pointerover', (event) => {
+      const hoverTarget = getHoverSoundTarget(event);
+      if (hoverTarget) playHoverSound(hoverTarget);
+    });
+
     if (openLegendBtn) openLegendBtn.addEventListener('click', () => legendModal.classList.add('show'));
     if (closeLegendBtn) closeLegendBtn.addEventListener('click', () => legendModal.classList.remove('show'));
     legendModal.addEventListener('click', (e) => {
@@ -4856,27 +6097,24 @@
       if (currentDetailGoalId) showGoalDetails(currentDetailGoalId);
     });
 
-    let lastClickTime = 0;
-    
     progressSquareContainer.addEventListener('click', (event) => {
-      const now = Date.now();
-      if (now - lastClickTime < 200) return; // Prevent rapid clicks
-      lastClickTime = now;
+      if (event.detail === 0) return;
       handleProgressSquareClick(event);
     });
-    
+
+    progressSquareContainer.addEventListener('pointerdown', (event) => {
+      if (state.goals.length) return;
+      if (!event.target.closest('.empty-goal-state')) return;
+      event.preventDefault();
+      openNewGoalCreationFromEmptyTile();
+    }, { passive: false });
+
     progressSquareContainer.addEventListener('pointerup', (event) => {
       if (event.pointerType === 'mouse') return;
+      event.preventDefault();
       const now = Date.now();
-      if (now - lastClickTime < 200) return;
-      lastClickTime = now;
-      handleProgressSquareClick(event);
-    });
-    
-    progressSquareContainer.addEventListener('touchend', (event) => {
-      const now = Date.now();
-      if (now - lastClickTime < 200) return;
-      lastClickTime = now;
+      if (now - lastSquareTouchTime < 220) return;
+      lastSquareTouchTime = now;
       handleProgressSquareClick(event);
     }, { passive: false });
     progressSquareContainer.addEventListener('keydown', (event) => {
@@ -4891,7 +6129,7 @@
         const target = event.target.closest('.empty-goal-btn');
         if (!target) return;
         playSound('select');
-        openGoalCreation();
+        openNewGoalCreation();
       });
     }
     if (reminderToast) {
@@ -4906,12 +6144,9 @@
           openGoalHub(goalId);
           return;
         }
-        if (action === 'email' && goalId) {
-          openGoalReminderEmail(goalId);
-          return;
-        }
         if (action === 'dismiss') {
           hideReminderToast();
+          return;
         }
       });
     }
@@ -4959,21 +6194,87 @@
       closeIntervention();
     });
 
-    if (typeof openGoalCreationBtn !== 'undefined' && openGoalCreationBtn) openGoalCreationBtn.addEventListener('click', openGoalCreation);
+    if (typeof openGoalCreationBtn !== 'undefined' && openGoalCreationBtn) openGoalCreationBtn.addEventListener('click', openNewGoalCreation);
     closeGoalCreationBtn.addEventListener('click', closeGoalCreation);
     goalCreationModal.addEventListener('click', (e) => {
+      if (Date.now() - goalCreationOpenedAt < 450) return;
       if (e.target === goalCreationModal) closeGoalCreation();
     });
+    goalCreationModal.addEventListener('input', updateGoalPreview);
+    goalCreationModal.addEventListener('change', updateGoalPreview);
+    if (goalColor) {
+      goalColor.addEventListener('input', () => {
+        syncGoalColorHexFromPicker();
+        updateGoalPreview();
+      });
+    }
+    if (goalColorHex) {
+      goalColorHex.addEventListener('input', () => {
+        const value = goalColorHex.value.trim();
+        if (isValidHexColor(value)) {
+          goalColor.value = value;
+          updateGoalPreview();
+        }
+      });
+      goalColorHex.addEventListener('blur', () => {
+        if (!isValidHexColor(goalColorHex.value.trim())) syncGoalColorHexFromPicker();
+      });
+    }
+    if (goalColorTone) goalColorTone.addEventListener('input', updateGoalPreview);
     wizardNextBtn.addEventListener('click', nextWizardStep);
     wizardBackBtn.addEventListener('click', previousWizardStep);
     addGoalBtn.addEventListener('click', addGoal);
     if (randomGoalBtn) randomGoalBtn.addEventListener('click', applyRandomGoalTemplate);
+    if (reminderOptionsBtn) reminderOptionsBtn.addEventListener('click', () => {
+      playSound('select');
+      openReminderOptionsForForm();
+    });
+    if (closeReminderOptionsBtn) closeReminderOptionsBtn.addEventListener('click', closeReminderOptions);
+    if (reminderOptionsModal) {
+      reminderOptionsModal.addEventListener('click', (e) => {
+        if (e.target === reminderOptionsModal) closeReminderOptions();
+      });
+    }
+    if (reminderOptionsMode) reminderOptionsMode.addEventListener('change', updateReminderOptionsUi);
+    if (reminderOptionsTime) reminderOptionsTime.addEventListener('input', updateReminderOptionsUi);
+    if (goalFrequency) goalFrequency.addEventListener('change', () => {
+      if (normalizeFrequency(goalFrequency.value) === 'Daily') {
+        selectedWeekdaysState = allWeekdays();
+      }
+      syncFrequencyUi();
+      updateGoalPreview();
+    });
+    if (weekdayPicker) {
+      weekdayPicker.addEventListener('click', (event) => {
+        const button = event.target.closest('[data-weekday]');
+        if (!button) return;
+        playSound('select');
+        const day = Number(button.dataset.weekday);
+        if (!Number.isInteger(day)) return;
+        if (selectedWeekdaysState.includes(day)) {
+          selectedWeekdaysState = selectedWeekdaysState.filter(value => value !== day);
+        } else {
+          selectedWeekdaysState = [...selectedWeekdaysState, day].sort((a, b) => a - b);
+        }
+        syncWeekdayPicker();
+        updateGoalPreview();
+      });
+    }
+    if (saveReminderOptionsBtn) saveReminderOptionsBtn.addEventListener('click', saveReminderOptions);
+    if (clearReminderOptionsBtn) clearReminderOptionsBtn.addEventListener('click', clearReminderOptions);
+    if (openPhoneAlarmBtn) {
+      openPhoneAlarmBtn.addEventListener('click', () => {
+        playSound('select');
+        openNativeAlarmSettings();
+      });
+    }
     goalIconPicker.addEventListener('click', (event) => {
       const choice = event.target.closest('[data-icon-value]');
       if (!choice) return;
       playSound('select');
       goalIcon.value = choice.dataset.iconValue || '';
       syncGoalIconPicker();
+      updateGoalPreview();
     });
     if (seedExampleBtn) seedExampleBtn.addEventListener('click', seedExample);
     closeGoalHubBtn.addEventListener('click', closeGoalHub);
@@ -4981,6 +6282,7 @@
       if (e.target === goalHubModal) closeGoalHub();
     });
     goalHubCompleteBtn.addEventListener('click', () => {
+      if (Date.now() - goalHubOpenedAt < 650) return;
       if (currentHubGoalId) {
         const goal = state.goals.find(g => g.id === currentHubGoalId);
         const todayMark = goal && goal.history && goal.history[todayString()] ? goal.history[todayString()] : 'unmarked';
@@ -5007,6 +6309,9 @@
     startDate.value = todayString();
     renderGoalIconPicker();
     syncGoalIconPicker();
+    syncFrequencyUi();
+    updateGoalPreview();
+    syncReminderSummary();
     syncPriorityModeUi();
     setupInstallPrompt();
     registerServiceWorker();
@@ -5030,7 +6335,9 @@
     window.openGoalLink = openGoalLink;
     window.dismissWeeklySummary = dismissWeeklySummary;
     window.openGoalHub = openGoalHub;
-    window.openGoalCreation = openGoalCreation;
+    window.openGoalCreation = openNewGoalCreation;
+    window.openNewGoalCreation = openNewGoalCreation;
+    window.openNewGoalCreationFromEmptyTile = openNewGoalCreationFromEmptyTile;
     window.archiveGoal = archiveGoal;
     window.deleteArchivedGoal = deleteArchivedGoal;
     window.confirmGoalConclusion = confirmGoalConclusion;

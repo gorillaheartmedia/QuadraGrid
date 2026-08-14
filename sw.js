@@ -1,4 +1,4 @@
-const CACHE_NAME = 'goal-tracker-pwa-v3';
+const CACHE_NAME = 'goal-tracker-pwa-v4';
 const APP_SHELL = [
   './',
   './index.html',
@@ -33,7 +33,14 @@ const APP_SHELL = [
   './write-svgrepo-com.svg'
 ];
 
+const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]']);
+const IS_LOCAL_DEV = LOCAL_HOSTS.has(self.location.hostname);
+
 self.addEventListener('install', event => {
+  if (IS_LOCAL_DEV) {
+    self.skipWaiting();
+    return;
+  }
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL))
   );
@@ -45,16 +52,48 @@ self.addEventListener('activate', event => {
     caches.keys().then(keys =>
       Promise.all(
         keys
-          .filter(key => key !== CACHE_NAME)
+          .filter(key => key !== CACHE_NAME || IS_LOCAL_DEV)
           .map(key => caches.delete(key))
       )
-    )
+    ).then(async () => {
+      if (IS_LOCAL_DEV) {
+        const registrations = await self.registration.unregister().catch(() => false);
+        return registrations;
+      }
+      return true;
+    })
   );
   self.clients.claim();
 });
 
 self.addEventListener('fetch', event => {
+  if (IS_LOCAL_DEV) return;
   if (event.request.method !== 'GET') return;
+
+  const requestUrl = new URL(event.request.url);
+  const isDocumentRequest = event.request.mode === 'navigate'
+    || event.request.destination === 'document'
+    || requestUrl.pathname.endsWith('/index.html')
+    || requestUrl.pathname === '/';
+
+  if (isDocumentRequest) {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          if (!response || response.status !== 200 || response.type !== 'basic') {
+            return response;
+          }
+          const responseClone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, responseClone));
+          return response;
+        })
+        .catch(async () => {
+          const cached = await caches.match(event.request);
+          return cached || caches.match('./index.html');
+        })
+    );
+    return;
+  }
 
   event.respondWith(
     caches.match(event.request).then(cached => {
