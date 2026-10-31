@@ -1584,6 +1584,13 @@
       padding: 10px 12px;
     }
 
+    .modal-close.icon-only {
+      width: 44px;
+      padding: 0;
+      font-size: 28px;
+      line-height: 1;
+    }
+
     .legend {
       display: grid;
       gap: 10px;
@@ -2301,11 +2308,11 @@
   </div>
   <div id="reminderToast" class="reminder-toast"></div>
 
-  <div class="modal" id="goalCreationModal">
+  <div class="modal" id="goalCreationModal" role="dialog" aria-modal="true" aria-labelledby="goalCreationTitle">
     <div class="modal-panel">
       <div class="modal-head">
-        <h3>Create Goal</h3>
-        <button class="modal-close" id="closeGoalCreationBtn">Close</button>
+        <h3 id="goalCreationTitle">Create Goal</h3>
+        <button class="modal-close icon-only" id="closeGoalCreationBtn" type="button" aria-label="Exit goal editor" title="Exit goal editor">&times;</button>
       </div>
       <div class="wizard-progress" id="wizardProgress">Step 1 of 2</div>
       <div class="goal-wizard">
@@ -2674,8 +2681,8 @@
     const ACHIEVEMENT_COMPLETION_MILESTONES = [10, 25, 50, 75, 100, 150, 200, 250, 300, 500, 750, 1000];
     const ACHIEVEMENT_HOUR_MILESTONES = [5, 10, 15, 20, 25, 50, 75, 100];
     const SOUND_FILES = {
-      hover: 'click-1.mp3',
-      select: 'bubble.mp3',
+      hover: 'bubble.mp3',
+      select: 'confirm.mp3',
       error: 'universfield-error-08-206492.mp3',
       complete: 'goal complete.mp3',
       achievement: 'universfield-level-up-04-243762.mp3'
@@ -2863,7 +2870,6 @@
     let currentRecoveryAction = 'timer';
     let currentInterventionGoalId = null;
     let currentHubGoalId = null;
-    let goalCreationOpenedAt = 0;
     let lastEmptyGoalOpenAt = 0;
     let lastHoverSoundAt = 0;
     let lastHoverSoundTarget = null;
@@ -5659,7 +5665,6 @@
     function showGoalCreationModal() {
       showApp();
       setWizardStep(1);
-      goalCreationOpenedAt = Date.now();
       goalCreationModal.classList.add('show');
     }
 
@@ -5827,6 +5832,7 @@
       if (remind && reminderModeSupportsNotification(remindMode)) {
         ensureReminderPermission();
       }
+      if (!editingGoal) playSound('complete');
       currentEditingGoalId = null;
       resetForm();
       closeGoalCreation();
@@ -6195,10 +6201,9 @@
     });
 
     if (typeof openGoalCreationBtn !== 'undefined' && openGoalCreationBtn) openGoalCreationBtn.addEventListener('click', openNewGoalCreation);
-    closeGoalCreationBtn.addEventListener('click', closeGoalCreation);
-    goalCreationModal.addEventListener('click', (e) => {
-      if (Date.now() - goalCreationOpenedAt < 450) return;
-      if (e.target === goalCreationModal) closeGoalCreation();
+    closeGoalCreationBtn.addEventListener('click', () => {
+      playSound('error');
+      closeGoalCreation();
     });
     goalCreationModal.addEventListener('input', updateGoalPreview);
     goalCreationModal.addEventListener('change', updateGoalPreview);
